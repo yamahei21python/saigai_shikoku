@@ -325,6 +325,9 @@
 <script src="./data/incidents.js"></script>
 <script src="./data/fdma_latest.js"></script>
 <script src="./data/facilities.js"></script>
+<script src="./data/ports.js"></script>
+<script src="./data/isolation.js"></script>
+<script src="./data/tsunami_towers.js"></script>
 
 <!-- support.js + parser.js (TDD検証済み) -->
 <script type="module">
@@ -344,6 +347,9 @@ let currentCategory = 'all';
 let currentIncidentType = 'all';
 let markersLayer = L.layerGroup();
 let quakeLayer = L.layerGroup(); // P0-2: 地震マーカー
+let portsLayer = L.layerGroup(); // P1-3: 港湾
+let isolationLayer = L.layerGroup(); // P1: 孤立リスク
+let towerLayer = L.layerGroup(); // P1-2: 避難タワー
 let isFdmaOpen = false;
 const cfg = window.CONFIG || {};
 
@@ -365,6 +371,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderFdmaPanel();
   initModData();
+  renderPortsMarkers(); // P1-3
+  renderIsolationMarkers(); // P1
+  renderTowerMarkers(); // P1-2
   fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
   setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
 
@@ -400,6 +409,9 @@ function initMap() {
   ).addTo(map);
   markersLayer.addTo(map);
   quakeLayer.addTo(map); // P0-2
+  portsLayer.addTo(map); // P1-3
+  isolationLayer.addTo(map); // P1
+  towerLayer.addTo(map); // P1-2
   renderIncidentMarkers();
 }
 
@@ -577,6 +589,83 @@ function renderFacilitiesMarkers() {
       <br><small style="color:#999;">更新: ${new Date(s.asOf).toLocaleString('ja-JP')}</small>
     </div>`;
     L.marker([s.lat, s.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P1-3: 港湾マーカー
+// ═══════════════════════════════════════════════
+function renderPortsMarkers() {
+  portsLayer.clearLayers();
+  const ports = window.PORTS_DATA || [];
+  ports.forEach(p => {
+    const active = p.active !== false;
+    const bg = active ? '#2563eb' : '#6b7280';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:24px;height:24px;border-radius:50%;background:${bg};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;font-weight:bold;">⚓</div>`,
+      iconSize: [24, 24], iconAnchor: [12, 12]
+    });
+    const status = active ? '✅ 稼働可能' : '🔴 使用不可';
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>${p.name}</strong><br>
+      <span style="color:#666;">[${p.pref}]</span><br>
+      ${status}<br>
+      水深: ${p.depth}m<br>
+      ${p.role || ''}<br>
+      ${p.berth ? '岸壁: ' + p.berth : ''}
+    </div>`;
+    L.marker([p.lat, p.lon], { icon }).bindPopup(popup).addTo(portsLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P1: 孤立リスクエリア
+// ═══════════════════════════════════════════════
+function renderIsolationMarkers() {
+  isolationLayer.clearLayers();
+  const areas = window.ISOLATION_RISK_DATA || [];
+  areas.forEach(a => {
+    const riskColor = a.status === 'high_risk' ? '#dc2626' :
+      a.status === 'medium_risk' ? '#f59e0b' : '#6b7280';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:28px;height:28px;border-radius:50%;background:${riskColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">⚠️</div>`,
+      iconSize: [28, 28], iconAnchor: [14, 14]
+    });
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:300px;">
+      <strong>${a.areaName}</strong><br>
+      <span style="color:#666;">[${a.muni}・${a.pref}]</span><br>
+      🔴 孤立リスク: ${a.status === 'high_risk' ? '高' : '中'}<br>
+      🛑 影響人口: ${a.affectedPop}<br>
+      🚧 寸断路線: ${a.routeCut}<br>
+      🔄 代替手段: ${a.alternative || '－'}<br>
+      <small style="color:#999;">${a.desc}</small>
+    </div>`;
+    L.marker([a.lat, a.lon], { icon }).bindPopup(popup).addTo(isolationLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P1-2: 津波避難タワー
+// ═══════════════════════════════════════════════
+function renderTowerMarkers() {
+  towerLayer.clearLayers();
+  const towers = window.TSUNAMI_TOWERS || [];
+  towers.forEach(t => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:26px;height:26px;border-radius:50%;background:#059669;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;">🏗️</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
+    });
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+      <strong>${t.name}</strong><br>
+      <span style="color:#666;">[${t.pref}]</span><br>
+      収容可能: ${t.capacity}人<br>
+      高さ: ${t.heightM || '－'}m<br>
+      ${t.note || ''}
+    </div>`;
+    L.marker([t.lat, t.lon], { icon }).bindPopup(popup).addTo(towerLayer);
   });
 }
 
@@ -839,6 +928,9 @@ window.modLocFix = modLocFix;
 window.exportCSV = exportCSV;
 window.fetchJMAQuakeLive = fetchJMAQuakeLive;
 window.renderQuakeMarkers = renderQuakeMarkers;
+window.renderPortsMarkers = renderPortsMarkers;
+window.renderIsolationMarkers = renderIsolationMarkers;
+window.renderTowerMarkers = renderTowerMarkers;
 </script>
 </body>
 </html>
