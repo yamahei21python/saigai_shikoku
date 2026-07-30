@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>四国版 災害情報マップ｜南海トラフ対策</title>
+<link rel="stylesheet" href="./lib/leaflet.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#1f2937;}
+  #app{display:flex;flex-direction:column;height:100vh;}
+
+  /* E-4: 緊急119/118バナー */
+  #emergencyBanner{
+    position:sticky;top:0;z-index:9999;background:#dc2626;color:#fff;
+    padding:6px 10px;text-align:center;font-size:0.8rem;font-weight:bold;
+    display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  #emergencyBanner a{color:#fff;text-decoration:underline;}
+  #emergencyBanner .phone-btn{
+    display:inline-block;background:#fff;color:#dc2626;border-radius:4px;
+    padding:2px 10px;text-decoration:none;font-size:0.85rem;font-weight:bold;
+  }
+
+  /* ヘッダー */
+  header{
+    background:#0B2645;color:#fff;
+    display:flex;flex-direction:column;gap:4px;
+    padding:6px 10px;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,.3);
+  }
+  header .top-row{
+    display:flex;align-items:center;gap:8px;font-size:13px;
+  }
+  header .top-row h1{margin:0;font-size:14px;font-weight:700;}
+  header .top-row .tag{background:#DC2626;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;}
+  header .top-row .time{font-size:10px;color:#B4C3D7;margin-left:auto;}
+  header .top-row .mod-badge{background:#7c3aed;color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;}
+
+  /* タブ */
+  .tabs{display:flex;gap:3px;flex-wrap:wrap;}
+  .tabs button{
+    background:#374151;color:#cbd5e1;border:none;padding:4px 10px;
+    border-radius:4px;cursor:pointer;font-size:11px;transition:all .15s;
+  }
+  .tabs button.active{background:#2563eb;color:#fff;font-weight:bold;}
+  .tabs button:hover{background:#4b5563;}
+
+  /* チップUIバー */
+  .chips-bar{
+    display:none;background:#f3f4f6;padding:6px 10px;
+    overflow-x:auto;white-space:nowrap;border-bottom:1px solid #e5e7eb;
+    gap:4px;align-items:center;
+  }
+  .chip{
+    display:inline-block;background:#fff;border:1px solid #d1d5db;
+    padding:3px 10px;border-radius:16px;font-size:0.8rem;
+    cursor:pointer;user-select:none;transition:all .15s;flex:none;
+  }
+  .chip:hover{background:#e5e7eb;}
+  .chip.active{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:bold;}
+
+  /* P0-6: FDMAサマリーパネル */
+  #fdmaPanel{
+    position:absolute;top:10px;right:10px;z-index:500;
+    background:rgba(255,255,255,.95);border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:0.8rem;
+    max-width:280px;overflow:hidden;transition:all .2s;
+  }
+  #fdmaPanel .fdma-header{
+    background:#1e3a5f;color:#fff;padding:6px 10px;
+    display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+  }
+  #fdmaPanel .fdma-header .fdma-title{font-weight:bold;font-size:0.85rem;}
+  #fdmaPanel .fdma-header .fdma-toggle{font-size:0.8rem;background:none;border:none;color:#fff;cursor:pointer;}
+  #fdmaPanel .fdma-body{padding:8px 10px;display:none;}
+  #fdmaPanel .fdma-body.open{display:block;}
+  #fdmaPanel .fdma-total{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:6px;}
+  #fdmaPanel .fdma-total div{background:#f8fafc;padding:4px 6px;border-radius:4px;text-align:center;}
+  #fdmaPanel .fdma-total .num{font-size:1.1rem;font-weight:bold;color:#1e3a5f;}
+  #fdmaPanel .fdma-total .lbl{font-size:0.7rem;color:#666;}
+  #fdmaPanel .fdma-pref{font-size:0.75rem;border-top:1px solid #e5e7eb;padding-top:4px;margin-top:4px;}
+  #fdmaPanel .fdma-pref-row{display:flex;justify-content:space-between;padding:2px 0;}
+  #fdmaPanel .fdma-time{font-size:0.7rem;color:#999;text-align:right;padding-top:4px;}
+
+  /* P0-9: #mod 管理画面 */
+  #modPanel{
+    display:none;flex:1;width:100%;overflow-y:auto;
+    background:#f9fafb;padding:16px;
+  }
+  #modPanel .mod-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  #modPanel .mod-header h2{font-size:1.2rem;}
+  #modPanel .mod-actions{display:flex;gap:8px;}
+  #modPanel .mod-actions button{padding:6px 12px;border-radius:4px;border:none;cursor:pointer;font-size:0.85rem;}
+  #modPanel table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  #modPanel th{background:#1e3a5f;color:#fff;padding:8px;text-align:left;position:sticky;top:0;}
+  #modPanel td{padding:8px;border-bottom:1px solid #e5e7eb;vertical-align:top;}
+  #modPanel tr:hover{background:#f1f5f9;}
+  #modPanel .status-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
+  #modPanel .status-pending{background:#fef3c7;color:#92400e;}
+  #modPanel .status-approved{background:#d1fae5;color:#065f46;}
+  #modPanel .status-rejected{background:#fee2e2;color:#991b1b;}
+  #modPanel .btn-approve{background:#059669;color:#fff;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;}
+  #modPanel .btn-reject{background:#dc2626;color:#fff;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;}
+  #modPanel .btn-csv{background:#2563eb;color:#fff;}
+  #modPanel .mod-back{background:#6b7280;color:#fff;}
+
+  /* 地図エリア */
+  #map{flex:1;width:100%;height:100%;}
+
+  /* マーカー */
+  .marker-pin{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+  .pin-active{background:#10b981;}
+  .pin-warning{background:#f59e0b;}
+  .pin-expired{background:#6b7280;}
+  .incident-pin{width:28px;height:28px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+
+  /* FAB */
+  .fab-report{
+    position:absolute;bottom:30px;right:20px;z-index:1000;
+    background:#dc2626;color:#fff;border:none;padding:12px 20px;
+    border-radius:30px;font-weight:bold;font-size:0.95rem;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer;transition:transform .2s;
+  }
+  .fab-report:hover{transform:scale(1.05);background:#b91c1c;}
+
+  /* モーダル */
+  .modal-overlay{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;
+  }
+  .modal-content{
+    background:#fff;width:90%;max-width:480px;border-radius:8px;overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;
+  }
+  .modal-header{background:#1f2937;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-header h3{margin:0;font-size:1rem;}
+  .modal-close{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;}
+  .modal-body{padding:16px;}
+  .modal-alert-box{background:#fef2f2;border-left:4px solid #dc2626;color:#991b1b;padding:8px 12px;font-size:0.85rem;margin-bottom:12px;border-radius:4px;}
+  .modal-alert-box a{color:#991b1b;font-weight:bold;}
+  .modal-body label{display:block;font-size:0.85rem;font-weight:bold;color:#374151;margin-top:10px;margin-bottom:2px;}
+  .modal-body select,.modal-body textarea,.modal-body input[type="file"]{width:100%;padding:6px;border:1px solid #d1d5db;border-radius:4px;font-size:0.85rem;}
+  .modal-body textarea{resize:vertical;}
+
+  /* 免責 */
+  .disclaimer{background:rgba(11,38,69,.95);color:#cdd9ea;font-size:9.5px;padding:3px 8px;line-height:1.4;text-align:center;}
+
+  @media (max-width:600px){
+    header .top-row h1{font-size:12px;}
+    .tabs button{font-size:10px;padding:3px 7px;}
+    .chip{font-size:0.75rem;padding:2px 8px;}
+    #emergencyBanner{font-size:0.7rem;}
+    .fab-report{font-size:0.85rem;padding:10px 16px;bottom:20px;right:16px;}
+    #fdmaPanel{max-width:220px;font-size:0.75rem;top:8px;right:8px;}
+    #modPanel{padding:10px;font-size:0.8rem;}
+    #modPanel table{font-size:0.75rem;}
+    #modPanel th,#modPanel td{padding:4px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- E-4: 緊急通報バナー -->
+  <div id="emergencyBanner">
+    <span>⚠️ 命の危険がある場合は今すぐ電話</span>
+    <a href="tel:119" class="phone-btn">📞 119番（消防）</a>
+    <span>or</span>
+    <a href="tel:118" class="phone-btn">🚢 118番（海保）</a>
+  </div>
+
+  <header>
+    <div class="top-row">
+      <span class="tag">防災</span>
+      <h1>四国 災害情報マップ</h1>
+      <span id="modBadge" class="mod-badge" style="display:none;">#mod</span>
+      <span class="time" id="headerTime">---</span>
+    </div>
+    <div class="tabs" style="display:flex;justify-content:space-between;align-items:center;gap:6px;" id="mainTabs">
+      <div class="tabs" id="modeTabs">
+        <button id="btnIncidents" class="active" onclick="switchView('incidents')">被害情報</button>
+        <button id="btnSupport" onclick="switchView('support')">生活支援</button>
+        <button id="btnAdmin" onclick="openAdmin()" style="background:#7c3aed;">🔐 管理</button>
+      </div>
+      <div class="tabs" id="regionTabs">
+        <button onclick="changeRegion('all')" class="active">四国全域</button>
+        <button onclick="changeRegion('tokushima')">徳島</button>
+        <button onclick="changeRegion('kagawa')">香川</button>
+        <button onclick="changeRegion('ehime')">愛媛</button>
+        <button onclick="changeRegion('kochi')">高知</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 被害情報 種別フィルターチップ -->
+  <div id="incidentsChipsBar" class="chips-bar">
+    <span class="chip active" onclick="filterIncidentType('all')">📋 全被害</span>
+    <span class="chip" onclick="filterIncidentType('rescue')">🚨 救助</span>
+    <span class="chip" onclick="filterIncidentType('road')">⛔ 道路</span>
+    <span class="chip" onclick="filterIncidentType('building')">🏚️ 建物</span>
+    <span class="chip" onclick="filterIncidentType('landslide')">⛰️ 土砂</span>
+    <span class="chip" onclick="filterIncidentType('fire')">🔥 火災</span>
+  </div>
+
+  <!-- 生活支援 カテゴリチップ（P0-7/8: 病院＋避難所追加） -->
+  <div id="supportChipsBar" class="chips-bar">
+    <span class="chip active" onclick="filterCategory('all')">📋 全表示</span>
+    <span class="chip" onclick="filterCategory('hospital')">🏥 病院</span>
+    <span class="chip" onclick="filterCategory('shelter_facility')">🏢 避難所</span>
+    <span class="chip" onclick="filterCategory('water')">💧 給水</span>
+    <span class="chip" onclick="filterCategory('shelter')">🏚️ 避難所(簡易)</span>
+    <span class="chip" onclick="filterCategory('medical')">🚑 医療(簡易)</span>
+    <span class="chip" onclick="filterCategory('charge')">🔋 充電</span>
+    <span class="chip" onclick="filterCategory('bath')">♨️ 風呂</span>
+    <span class="chip" onclick="filterCategory('fuel')">⛽ 燃料</span>
+    <span class="chip" onclick="filterCategory('goods')">📦 物資</span>
+    <span class="chip" onclick="filterCategory('terminal')">💻 端末</span>
+  </div>
+
+  <!-- P0-6: FDMAサマリーパネル -->
+  <div id="fdmaPanel">
+    <div class="fdma-header" onclick="toggleFdmaPanel()">
+      <span class="fdma-title">🚒 消防庁 第<span id="fdmaNo">-</span>報</span>
+      <button class="fdma-toggle" id="fdmaToggleBtn">▼</button>
+    </div>
+    <div class="fdma-body" id="fdmaBody">
+      <div class="fdma-total" id="fdmaTotal"></div>
+      <div class="fdma-pref" id="fdmaPref"></div>
+      <div class="fdma-time" id="fdmaTime"></div>
+    </div>
+  </div>
+
+  <!-- P0-9: #mod 管理画面 -->
+  <div id="modPanel">
+    <div class="mod-header">
+      <h2>🔐 運営管理画面 <span style="font-size:0.85rem;font-weight:normal;color:#666;">(#mod)</span></h2>
+      <div class="mod-actions">
+        <button class="mod-back" onclick="closeAdmin()">← マップに戻る</button>
+        <button class="btn-csv" onclick="exportCSV()">📤 CSV出力</button>
+      </div>
+    </div>
+    <p style="color:#666;font-size:0.85rem;margin-bottom:12px;">
+      未審査の投稿一覧。内容確認後、承認/却下を選択してください。
+    </p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px;">ID</th>
+            <th style="width:80px;">種別</th>
+            <th>内容</th>
+            <th style="width:90px;">位置</th>
+            <th style="width:80px;">写真</th>
+            <th style="width:100px;">投稿日時</th>
+            <th style="width:100px;">ステータス</th>
+            <th style="width:140px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="modTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- FAB -->
+  <button id="btnReport" class="fab-report" onclick="openReportModal()">📸 現場を投稿</button>
+
+  <div class="disclaimer">
+    ※ 本マップは防災情報の補助ツール。避難判断は気象庁・自治体の公式情報を最優先。
+    地図：国土地理院タイル｜作成：山崎誠政策研究所
+  </div>
+</div>
+
+<!-- 投稿モーダル -->
+<div id="reportModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📸 現場被害・支援要請の投稿</h3>
+      <button class="modal-close" onclick="closeReportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-alert-box">
+        ⚠️ <strong>生命に関わる緊急事態ですか？</strong><br>
+        この投稿は消防へ直接接続されません。命の危険がある場合は今すぐ
+        <a href="tel:119">📞 119番に電話</a> を行ってください。
+      </div>
+      <form id="reportForm" onsubmit="handleReportSubmit(event)">
+        <label>投稿種別</label>
+        <select id="reportType" onchange="toggleRescueTriage(this.value)" required>
+          <option value="building">🏚️ 建物被害・倒壊</option>
+          <option value="road">⛔ 道路障害・通行止め</option>
+          <option value="landslide">⛰️ 土砂崩れ・崖崩れ</option>
+          <option value="rescue">🚨 救助要請（人命）</option>
+          <option value="fire">🔥 火災</option>
+          <option value="water">💧 断水・冠水</option>
+        </select>
+        <div id="rescueTriageFields" style="display:none;background:#fef2f2;padding:10px;border-radius:6px;margin:10px 0;border:1px solid #fca5a5;">
+          <label style="color:#dc2626;font-weight:bold;">🚨 救助要請詳細</label>
+          <input type="number" id="rescuePeople" placeholder="要救助者人数" min="1" style="margin:4px 0;">
+          <select id="rescueCondition" style="margin:4px 0;">
+            <option value="trapped">閉じ込め・身動き不可</option>
+            <option value="injured">負傷あり・出血あり</option>
+            <option value="safe_place">安全な高台で孤立中</option>
+          </select>
+        </div>
+        <label>状況の詳細</label>
+        <textarea id="reportDetail" rows="3" placeholder="現場の状況を具体的に（8文字以上）" required></textarea>
+        <label>写真添付（任意）</label>
+        <input type="file" id="reportPhoto" accept="image/*">
+        <label>位置</label>
+        <div style="font-size:0.85rem;color:#666;" id="reportLocation">📡 地図中心を使用</div>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" onclick="closeReportModal()" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:4px;background:#fff;cursor:pointer;">キャンセル</button>
+          <button type="submit" style="background:#2563eb;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-weight:bold;cursor:pointer;">📤 送信する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="./lib/leaflet.js"></script>
+<script src="./data/config.js"></script>
+<script src="./data/life_support.js"></script>
+<script src="./data/incidents.js"></script>
+<script src="./data/fdma_latest.js"></script>
+<script src="./data/facilities.js"></script>
+
+<!-- support.js + parser.js (TDD検証済み) -->
+<script type="module">
+  import { getSupportStatus } from './src/logic/support.js';
+  import { parseJMAQuake } from './src/logic/parser.js';
+  window.__support = { getSupportStatus };
+  window.__parser = { parseJMAQuake };
+</script>
+
+<script>
+// ═══════════════════════════════════════════════
+//  グローバル状態
+// ═══════════════════════════════════════════════
+let map;
+let currentMode = 'incidents';
+let currentCategory = 'all';
+let currentIncidentType = 'all';
+let markersLayer = L.layerGroup();
+let quakeLayer = L.layerGroup(); // P0-2: 地震マーカー
+let isFdmaOpen = false;
+const cfg = window.CONFIG || {};
+
+// P0-9: 管理画面 ダミー投稿データ（本番はKVから取得）
+let pendingReports = [];
+const MOD_AUTH_KEY = 'shikoku-quake-secret-key-2026';
+
+// ═══════════════════════════════════════════════
+//  初期化
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initMap();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(() => {
+    if (currentMode === 'support') renderSupportMarkers();
+    if (currentMode === 'incidents') renderIncidentMarkers();
+  }, cfg.AUTO_RELOAD_INTERVAL_MS || 600000);
+
+  renderFdmaPanel();
+  initModData();
+  fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
+  setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
+
+  // #mod ハッシュ検出
+  if (window.location.hash === '#mod') {
+    openAdmin();
+  }
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#mod') openAdmin();
+    else if (document.getElementById('modPanel').style.display === 'flex') closeAdmin();
+  });
+});
+
+function updateClock() {
+  document.getElementById('headerTime').textContent =
+    new Date().toLocaleString('ja-JP', {
+      year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit'
+    });
+}
+
+// ═══════════════════════════════════════════════
+//  地図
+// ═══════════════════════════════════════════════
+function initMap() {
+  map = L.map('map', { zoomControl: false, attributionControl: true })
+    .setView(cfg.INITIAL_CENTER || [33.6, 133.5], cfg.INITIAL_ZOOM || 8.5);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer(
+    (cfg.GSI_TILES && cfg.GSI_TILES.pale) ||
+    'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
+    { attribution: '&copy; 国土地理院', maxZoom: 18 }
+  ).addTo(map);
+  markersLayer.addTo(map);
+  quakeLayer.addTo(map); // P0-2
+  renderIncidentMarkers();
+}
+
+// ═══════════════════════════════════════════════
+//  P0-6: FDMAサマリーパネル
+// ═══════════════════════════════════════════════
+function renderFdmaPanel() {
+  const fdma = window.FDMA_LATEST;
+  if (!fdma) return;
+  document.getElementById('fdmaNo').textContent = fdma.reportNo;
+  document.getElementById('fdmaTime').textContent =
+    '更新: ' + new Date(fdma.reportTime).toLocaleString('ja-JP');
+
+  const total = fdma.total || { dead:0, injuredHeavy:0, collapsed:0, halfCollapsed:0 };
+  document.getElementById('fdmaTotal').innerHTML = `
+    <div><div class="num">${total.dead}</div><div class="lbl">死者</div></div>
+    <div><div class="num">${total.injuredHeavy}</div><div class="lbl">重傷</div></div>
+    <div><div class="num">${total.collapsed}</div><div class="lbl">全壊</div></div>
+    <div><div class="num">${total.halfCollapsed}</div><div class="lbl">半壊</div></div>
+  `;
+
+  let prefHtml = '';
+  for (const p of fdma.prefectures || []) {
+    prefHtml += `<div class="fdma-pref-row">
+      <span><b>${p.name}</b></span>
+      <span>死者${p.dead} 重傷${p.injuredHeavy} 全壊${p.collapsed}</span>
+    </div>`;
+  }
+  document.getElementById('fdmaPref').innerHTML = prefHtml;
+}
+
+function toggleFdmaPanel() {
+  isFdmaOpen = !isFdmaOpen;
+  document.getElementById('fdmaBody').classList.toggle('open', isFdmaOpen);
+  document.getElementById('fdmaToggleBtn').textContent = isFdmaOpen ? '▲' : '▼';
+}
+
+// ═══════════════════════════════════════════════
+//  P0-3: 生活支援マーカー
+// ═══════════════════════════════════════════════
+function getFreshness(item, now) {
+  const s = window.__support;
+  if (s && s.getSupportStatus) return s.getSupportStatus(item.asOf, item.status, now);
+  const h = (now - new Date(item.asOf)) / 3600000;
+  if (h < 6) return 'active'; if (h < 24) return 'warning'; return 'expired';
+}
+
+function renderSupportMarkers() {
+  markersLayer.clearLayers();
+  if (currentMode !== 'support') return;
+  const items = window.LIFE_SUPPORT_DATA || [];
+  const now = new Date();
+  items.forEach(item => {
+    if (currentCategory !== 'all' && item.cat !== currentCategory) return;
+    const f = getFreshness(item, now);
+    let cls = 'pin-active';
+    if (f === 'warning') cls = 'pin-warning';
+    else if (f === 'expired' || item.status === 'full' || item.status === 'closed') cls = 'pin-expired';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="marker-pin ${cls}"></div>`,
+      iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+    const fl = f === 'active' ? '🟢 利用可' : f === 'warning' ? '🟡 要確認' : '⚫ 経過';
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+      <strong>${item.name}</strong><br><span style="color:#666;">[${item.muni}]</span><br>
+      状態: <strong>${fl}</strong>
+      ${item.capacity ? `<br>収容: ${item.people}/${item.capacity}人` : ''}
+      ${item.tel ? `<br>📞 ${item.tel}` : ''}
+      <br>${item.detail || ''}
+      <br><small style="color:#999;">更新: ${new Date(item.asOf).toLocaleString('ja-JP')}</small>
+    </div>`;
+    L.marker([item.lat, item.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+  });
+  renderFacilitiesMarkers(); // P0-7/8: 病院＋避難所
+}
+
+function filterCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('#supportChipsBar .chip').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#supportChipsBar .chip').forEach(el => {
+    if (cat === 'all' && el.textContent.includes('全表示')) el.classList.add('active');
+    else if (el.textContent.includes(cat)) el.classList.add('active');
+  });
+  renderSupportMarkers();
+}
+
+// ═══════════════════════════════════════════════
+//  P0-4: 被害情報マーカー
+// ═══════════════════════════════════════════════
+function renderIncidentMarkers() {
+  markersLayer.clearLayers();
+  if (currentMode !== 'incidents') return;
+  const items = window.INCIDENTS_DATA || [];
+  const colorMap = { rescue:'#dc2626', road:'#f97316', building:'#78350f', landslide:'#854d0e', fire:'#ef4444', water:'#2563eb' };
+  const symbolMap = { rescue:'🚨', road:'⛔', building:'🏚️', landslide:'⛰️', fire:'🔥', water:'💧' };
+  items.forEach(item => {
+    if (currentIncidentType !== 'all' && item.type !== currentIncidentType) return;
+    const color = colorMap[item.type] || '#ef4444';
+    const symbol = symbolMap[item.type] || '⚠️';
+    const badge = item.cls === 'official'
+      ? '<span style="background:#1e40af;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.75rem;white-space:nowrap;">公的情報</span>'
+      : item.cls === 'media'
+      ? '<span style="background:#065f46;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.75rem;white-space:nowrap;">報道</span>'
+      : '<span style="background:#92400e;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.75rem;white-space:nowrap;">市民投稿</span>';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="incident-pin" style="background:${color};">${symbol}</div>`,
+      iconSize: [28, 28], iconAnchor: [14, 14]
+    });
+    const sourceLink = item.url ? `<a href="${item.url}" target="_blank" rel="noopener" style="color:#2563eb;">${item.src}</a>` : item.src;
+    const locPrec = item.loc_precision === 'approx' ? '📍 位置は市町村単位' : '📍 ピンポイント';
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+      <div style="margin-bottom:4px;">${badge}</div>
+      <strong style="font-size:1rem;color:#111;">${item.title}</strong>
+      <p style="margin:4px 0;color:#333;">${item.detail}</p>
+      <div style="font-size:0.8rem;color:#666;margin-top:6px;">
+        出所: ${sourceLink}<br>${locPrec}<br>
+        確認: ${new Date(item.time).toLocaleString('ja-JP')}
+      </div>
+    </div>`;
+    L.marker([item.lat, item.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+  });
+}
+
+function filterIncidentType(type) {
+  currentIncidentType = type;
+  document.querySelectorAll('#incidentsChipsBar .chip').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#incidentsChipsBar .chip').forEach(el => {
+    if (type === 'all' && el.textContent.includes('全被害')) el.classList.add('active');
+    else if (el.textContent.includes(type)) el.classList.add('active');
+  });
+  renderIncidentMarkers();
+}
+
+// ═══════════════════════════════════════════════
+//  P0-7/8: 医療機関・避難所 マーカー
+// ═══════════════════════════════════════════════
+function renderFacilitiesMarkers() {
+  if (currentMode !== 'support') return;
+
+  // 病院マーカー
+  const hospitals = window.HOSPITALS_DATA || [];
+  hospitals.forEach(h => {
+    if (currentCategory !== 'all' && currentCategory !== 'hospital') return;
+    const erColor = h.er === 'open' ? '#059669' : h.er === 'limited' ? '#f59e0b' : '#6b7280';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:26px;height:26px;border-radius:50%;background:${erColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">🏥</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
+    });
+    const erLabel = h.er === 'open' ? '🟢 受入可' : h.er === 'limited' ? '🟡 制限あり' : '🔴 受入停止';
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+      <strong>${h.name}</strong><br><span style="color:#666;">[${h.muni}]</span><br>
+      ${h.type}<br>🚑 ${erLabel}<br>📞 ${h.tel}
+      <br><small style="color:#999;">更新: ${new Date(h.asOf).toLocaleString('ja-JP')}</small>
+    </div>`;
+    L.marker([h.lat, h.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+  });
+
+  // 避難所マーカー（詳細版）
+  const shelters = window.SHELTERS_DATA || [];
+  shelters.forEach(s => {
+    if (currentCategory !== 'all' && currentCategory !== 'shelter_facility') return;
+    const statusColor = s.status === 'open' ? '#2563eb' : s.status === 'limited' ? '#f59e0b' : '#6b7280';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:26px;height:26px;border-radius:50%;background:${statusColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">🏢</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
+    });
+    const pct = s.capacity > 0 ? Math.round(s.people / s.capacity * 100) : 0;
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+      <strong>${s.name}</strong><br><span style="color:#666;">[${s.muni}]</span><br>
+      収容: ${s.people}/${s.capacity}人 (${pct}%)
+      <br><small style="color:#999;">更新: ${new Date(s.asOf).toLocaleString('ja-JP')}</small>
+    </div>`;
+    L.marker([s.lat, s.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P0-2: 気象庁地震リアルタイム取得
+// ═══════════════════════════════════════════════
+async function fetchJMAQuakeLive() {
+  const JMA_URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
+  try {
+    const res = await fetch(JMA_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    // parser.js の parseJMAQuake で四国フィルタ + 震度変換
+    const parser = window.__parser;
+    const quakes = [];
+    if (parser && parser.parseJMAQuake && Array.isArray(data)) {
+      for (const eq of data) {
+        const parsed = parser.parseJMAQuake(eq);
+        if (parsed) quakes.push(parsed);
+      }
+    }
+    if (quakes.length > 0) {
+      console.log('⚡ 四国周辺地震:', quakes.length, '件');
+      renderQuakeMarkers(quakes);
+    }
+  } catch (err) {
+    console.warn('気象庁API取得失敗:', err.message);
+  }
+}
+
+function renderQuakeMarkers(quakes) {
+  quakeLayer.clearLayers();
+  quakes.forEach(q => {
+    const intVal = parseInt(q.intensity) || 0;
+    const radius = intVal >= 5 ? 22 : 14;
+    const color = intVal >= 6 ? '#dc2626' : intVal >= 5 ? '#f59e0b' : '#6b7280';
+    L.circleMarker([q.lat, q.lon], {
+      radius, fillColor: color, color: '#fff', weight: 2, fillOpacity: 0.7
+    }).bindPopup(`<div style="font-size:0.9rem;">
+      <strong style="color:${color};">震度 ${q.intensity}</strong><br>
+      震源地: ${q.region || q.anm || '-'}<br>
+      M: ${q.mag}<br>深さ: ${q.depth || q.dep || '-'}
+    </div>`).addTo(quakeLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  ビュー切替
+// ═══════════════════════════════════════════════
+function switchView(mode) {
+  currentMode = mode;
+  document.getElementById('btnIncidents').classList.toggle('active', mode === 'incidents');
+  document.getElementById('btnSupport').classList.toggle('active', mode === 'support');
+  document.getElementById('incidentsChipsBar').style.display = mode === 'incidents' ? 'flex' : 'none';
+  document.getElementById('supportChipsBar').style.display = mode === 'support' ? 'flex' : 'none';
+  if (mode === 'incidents') renderIncidentMarkers();
+  else renderSupportMarkers();
+}
+
+function changeRegion(key) {
+  const region = cfg.REGIONS && cfg.REGIONS[key];
+  if (!region || !map) return;
+  map.flyTo(region.center, region.zoom, { duration: 1.0 });
+  document.querySelectorAll('#regionTabs button').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`#regionTabs button[onclick*="'${key}'"]`);
+  if (btn) btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+//  P0-5: 投稿モーダル
+// ═══════════════════════════════════════════════
+function openReportModal() {
+  if (map) {
+    const c = map.getCenter();
+    document.getElementById('reportLocation').textContent = `📍 地図中心 (${c.lat.toFixed(4)}, ${c.lng.toFixed(4)})`;
+  }
+  document.getElementById('reportModal').style.display = 'flex';
+}
+
+function closeReportModal() {
+  document.getElementById('reportModal').style.display = 'none';
+}
+
+function toggleRescueTriage(type) {
+  document.getElementById('rescueTriageFields').style.display = type === 'rescue' ? 'block' : 'none';
+}
+
+async function handleReportSubmit(e) {
+  e.preventDefault();
+  const type = document.getElementById('reportType').value;
+  const detail = document.getElementById('reportDetail').value;
+  const photo = document.getElementById('reportPhoto').files[0];
+  if (!detail || detail.length < 8) { alert('詳細は8文字以上で入力してください。'); return; }
+  const center = map ? map.getCenter() : { lat: 33.6, lng: 133.5 };
+  const payload = { lat: center.lat, lon: center.lng, type, detail, hasPhoto: !!photo, createdAt: new Date().toISOString() };
+  if (type === 'rescue') {
+    payload.rescuePeople = parseInt(document.getElementById('rescuePeople').value) || 1;
+    payload.rescueCondition = document.getElementById('rescueCondition').value;
+  }
+  console.log('[REPORT] 投稿:', payload);
+  alert('✅ 投稿を受付けました。審査ののちマップへ反映されます。');
+  closeReportModal();
+  document.getElementById('reportForm').reset();
+  document.getElementById('rescueTriageFields').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+//  P0-9: 運営管理画面 (#mod)
+// ═══════════════════════════════════════════════
+function initModData() {
+  const types = ['rescue','road','building','landslide','fire','water'];
+  const statuses = ['pending','pending','pending','approved','rejected'];
+  const details = [
+    'マンション3階で高齢者が取り残されています。',
+    '県道338号線 崖崩れのため通行止め。',
+    'スーパー駐車場の地面が陥没。',
+    '避難所で毛布が不足しています。',
+    'がけ崩れで車1台が被災。運転手は脱出済み。',
+    '市営住宅の窓ガラスが多数破損。'
+  ];
+  pendingReports = [];
+  for (let i = 1; i <= 8; i++) {
+    const t = types[i % types.length];
+    const s = statuses[i % statuses.length];
+    pendingReports.push({
+      id: `RPT-${String(i).padStart(4,'0')}`,
+      type: t,
+      detail: details[i % details.length] || '被害報告があります。',
+      lat: 33.3 + Math.random() * 1.2,
+      lon: 132.2 + Math.random() * 2.8,
+      hasPhoto: i % 3 === 0,
+      createdAt: new Date(Date.now() - i * 3600 * 1000).toISOString(),
+      status: s,
+      score: Math.floor(Math.random() * 4)
+    });
+  }
+}
+
+function openAdmin() {
+  // 簡易認証
+  const key = prompt('🔐 管理APIキーを入力してください:');
+  if (key !== MOD_AUTH_KEY && key !== null) {
+    alert('認証エラー: キーが無効です');
+    if (key !== null) return openAdmin();
+    return;
+  }
+  if (key === null) return; // キャンセル
+
+  document.getElementById('map').style.display = 'none';
+  document.getElementById('btnReport').style.display = 'none';
+  document.getElementById('modPanel').style.display = 'block';
+  document.getElementById('fdmaPanel').style.display = 'none';
+  document.getElementById('mainTabs').style.display = 'none';
+  document.getElementById('incidentsChipsBar').style.display = 'none';
+  document.getElementById('supportChipsBar').style.display = 'none';
+  document.getElementById('modBadge').style.display = 'inline';
+  window.location.hash = 'mod';
+  renderModTable();
+}
+
+function closeAdmin() {
+  document.getElementById('map').style.display = 'flex';
+  document.getElementById('btnReport').style.display = 'block';
+  document.getElementById('modPanel').style.display = 'none';
+  document.getElementById('fdmaPanel').style.display = 'block';
+  document.getElementById('mainTabs').style.display = 'flex';
+  document.getElementById('modBadge').style.display = 'none';
+  if (currentMode === 'incidents') document.getElementById('incidentsChipsBar').style.display = 'flex';
+  else document.getElementById('supportChipsBar').style.display = 'flex';
+  window.location.hash = '';
+  map.invalidateSize();
+}
+
+function renderModTable() {
+  const typeLabel = { rescue:'🚨救助', road:'⛔道路', building:'🏚️建物', landslide:'⛰️土砂', fire:'🔥火災', water:'💧断水' };
+  const statusLabel = { pending:'⏳未審査', approved:'✅承認', rejected:'❌却下' };
+  const statusClass = { pending:'status-pending', approved:'status-approved', rejected:'status-rejected' };
+  let html = '';
+  for (const r of pendingReports) {
+    html += `<tr>
+      <td>${r.id}</td>
+      <td>${typeLabel[r.type] || r.type}</td>
+      <td>${r.detail.substring(0, 40)}${r.detail.length > 40 ? '...' : ''}</td>
+      <td>${r.lat.toFixed(2)}, ${r.lon.toFixed(2)}</td>
+      <td>${r.hasPhoto ? '📸有' : '−'}</td>
+      <td>${new Date(r.createdAt).toLocaleString('ja-JP')}</td>
+      <td><span class="status-badge ${statusClass[r.status] || 'status-pending'}">${statusLabel[r.status] || r.status}</span>
+          <br><small>score: ${r.score}</small></td>
+      <td>
+        ${r.status === 'pending' ? `
+          <button class="btn-approve" onclick="modApprove('${r.id}')">✅承認</button>
+          <button class="btn-reject" onclick="modReject('${r.id}')">❌却下</button>
+          <button style="background:#6b7280;color:#fff;padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:0.75rem;margin-top:2px;" onclick="modLocFix('${r.id}')">📍位置修正</button>
+        ` : '−'}
+      </td>
+    </tr>`;
+  }
+  document.getElementById('modTableBody').innerHTML = html;
+}
+
+function modApprove(id) {
+  const r = pendingReports.find(x => x.id === id);
+  if (r) { r.status = 'approved'; renderModTable(); }
+}
+
+function modReject(id) {
+  if (!confirm(`投稿 ${id} を却下しますか？`)) return;
+  const r = pendingReports.find(x => x.id === id);
+  if (r) { r.status = 'rejected'; renderModTable(); }
+}
+
+function modLocFix(id) {
+  const r = pendingReports.find(x => x.id === id);
+  if (!r) return;
+  const newLat = prompt('緯度を入力:', r.lat.toFixed(4));
+  if (newLat === null) return;
+  const newLon = prompt('経度を入力:', r.lon.toFixed(4));
+  if (newLon === null) return;
+  r.lat = parseFloat(newLat) || r.lat;
+  r.lon = parseFloat(newLon) || r.lon;
+  renderModTable();
+}
+
+function exportCSV() {
+  const headers = ['ID','種別','内容','緯度','経度','写真','投稿日時','ステータス','スコア'];
+  const typeLabel = { rescue:'救助', road:'道路', building:'建物', landslide:'土砂', fire:'火災', water:'断水' };
+  const rows = pendingReports.map(r => [
+    r.id, typeLabel[r.type] || r.type, `"${r.detail.replace(/"/g,'""')}"`,
+    r.lat.toFixed(4), r.lon.toFixed(4),
+    r.hasPhoto ? '有' : '無',
+    new Date(r.createdAt).toISOString(),
+    r.status, r.score
+  ]);
+  const bom = '\uFEFF';
+  const csv = bom + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mod_reports_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// 外部公開
+window.changeRegion = changeRegion;
+window.switchView = switchView;
+window.filterCategory = filterCategory;
+window.filterIncidentType = filterIncidentType;
+window.openReportModal = openReportModal;
+window.closeReportModal = closeReportModal;
+window.toggleRescueTriage = toggleRescueTriage;
+window.handleReportSubmit = handleReportSubmit;
+window.openAdmin = openAdmin;
+window.closeAdmin = closeAdmin;
+window.toggleFdmaPanel = toggleFdmaPanel;
+window.modApprove = modApprove;
+window.modReject = modReject;
+window.modLocFix = modLocFix;
+window.exportCSV = exportCSV;
+window.fetchJMAQuakeLive = fetchJMAQuakeLive;
+window.renderQuakeMarkers = renderQuakeMarkers;
+</script>
+</body>
+</html>
