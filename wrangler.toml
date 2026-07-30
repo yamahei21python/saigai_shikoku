@@ -1,0 +1,27 @@
+name = "shikoku-quake-map"
+main = "api/index.js"
+compatibility_date = "2024-03-01"
+
+# Workers Sites: 静的アセット配信
+[site]
+bucket = "./"
+include = ["*.html", "*.css", "*.js", "data/*.js", "lib/*", "src/*.js"]
+exclude = ["node_modules/**", "tests/**", ".github/**"]
+
+# KV Namespace: 投稿データ保存
+[[kv_namespaces]]
+binding = "REPORTS_KV"
+id = "YOUR_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_KV_ID"
+
+# 環境変数
+[vars]
+ENVIRONMENT = "production"
+MOD_AUTH_KEY = "shikoku-quake-secret-key-2026"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# デプロイ後、実際のKV IDに書き換え:
+#   wrangler kv:namespace create REPORTS_KV
+#   wrangler kv:namespace create REPORTS_KV --preview
