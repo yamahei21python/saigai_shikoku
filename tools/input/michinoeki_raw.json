@@ -1,0 +1,2104 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-08-01T04:48:09Z",
+    "timestamp_areas_base": "2026-05-12T07:36:16Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 262309907,
+  "lat": 33.7510315,
+  "lon": 133.6633179,
+  "tags": {
+    "amenity": "parking",
+    "highway": "services",
+    "name": "道の駅　大杉",
+    "name:ja": "道の駅　大杉",
+    "wikidata": "Q11641225"
+  }
+},
+{
+  "type": "node",
+  "id": 262311995,
+  "lat": 33.6111627,
+  "lon": 133.6419284,
+  "tags": {
+    "amenity": "parking",
+    "highway": "services",
+    "name": "道の駅 南国 風良里",
+    "name:ja": "道の駅 南国 風良里",
+    "wikidata": "Q11641182"
+  }
+},
+{
+  "type": "node",
+  "id": 262319247,
+  "lat": 33.6485007,
+  "lon": 133.7828459,
+  "tags": {
+    "amenity": "parking",
+    "highway": "services",
+    "name": "道の駅 美良布",
+    "name:ja": "道の駅 美良布",
+    "wikidata": "Q11641461"
+  }
+},
+{
+  "type": "node",
+  "id": 262326536,
+  "lat": 33.8632369,
+  "lon": 134.5022756,
+  "tags": {
+    "name": "道の駅「鷲の里」",
+    "tourism": "information",
+    "wikidata": "Q11641579",
+    "wikipedia": "ja:道の駅鷲の里"
+  }
+},
+{
+  "type": "node",
+  "id": 262327242,
+  "lat": 33.8689651,
+  "lon": 134.5546044,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 鷲敷",
+    "name:ja": "道の駅 鷲敷"
+  }
+},
+{
+  "type": "node",
+  "id": 296943963,
+  "lat": 34.0504993,
+  "lon": 133.9323551,
+  "tags": {
+    "amenity": "parking",
+    "highway": "services",
+    "name": "道の駅三野",
+    "wikidata": "Q11641111"
+  }
+},
+{
+  "type": "node",
+  "id": 304886576,
+  "lat": 33.5336247,
+  "lon": 133.7541881,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅やす"
+  }
+},
+{
+  "type": "node",
+  "id": 329937668,
+  "lat": 33.3875861,
+  "lon": 133.2747432,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅かわうその里すさき"
+  }
+},
+{
+  "type": "node",
+  "id": 329980801,
+  "lat": 33.4267480,
+  "lon": 133.0998930,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 布施ヶ坂",
+    "wikidata": "Q11641290"
+  }
+},
+{
+  "type": "node",
+  "id": 412334544,
+  "lat": 33.7794237,
+  "lon": 133.3074862,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 木の香",
+    "wikidata": "Q11641327"
+  }
+},
+{
+  "type": "node",
+  "id": 761147496,
+  "lat": 34.1701741,
+  "lon": 134.0820800,
+  "tags": {
+    "check_date": "2024-08-15",
+    "name": "道の駅しおのえ",
+    "opening_hours": "Mo,We-Su 08:00-19:00",
+    "shop": "gift",
+    "wikidata": "Q11640765"
+  }
+},
+{
+  "type": "node",
+  "id": 765636967,
+  "lat": 34.0950347,
+  "lon": 134.0079936,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 ことなみ",
+    "wikidata": "Q11640742"
+  }
+},
+{
+  "type": "node",
+  "id": 811019481,
+  "lat": 33.5552313,
+  "lon": 132.6586949,
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅内子",
+    "parking": "surface"
+  }
+},
+{
+  "type": "node",
+  "id": 975758166,
+  "lat": 33.7425039,
+  "lon": 133.5445252,
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅「土佐さめうら」"
+  }
+},
+{
+  "type": "node",
+  "id": 1025893846,
+  "lat": 34.0425439,
+  "lon": 133.6013760,
+  "tags": {
+    "amenity": "toilets",
+    "name": "道の駅 豊浜"
+  }
+},
+{
+  "type": "node",
+  "id": 1300667427,
+  "lat": 32.9588327,
+  "lon": 132.5618967,
+  "tags": {
+    "amenity": "toilets",
+    "name": "道の駅みしょうMIC"
+  }
+},
+{
+  "type": "node",
+  "id": 1708437657,
+  "lat": 34.2505026,
+  "lon": 133.9170408,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "道の駅滝宮"
+  }
+},
+{
+  "type": "node",
+  "id": 1814701905,
+  "lat": 34.5338886,
+  "lon": 134.2421043,
+  "tags": {
+    "name": "道の駅「大坂城残石記念公園」",
+    "tourism": "information"
+  }
+},
+{
+  "type": "node",
+  "id": 1814714055,
+  "lat": 33.7423164,
+  "lon": 133.5445284,
+  "tags": {
+    "name": "道の駅「土佐さめうら」",
+    "tourism": "information",
+    "wikidata": "Q11641207",
+    "wikipedia": "ja:道の駅土佐さめうら"
+  }
+},
+{
+  "type": "node",
+  "id": 2006133535,
+  "lat": 34.3335061,
+  "lon": 134.1570460,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅　源平の里むれ",
+    "source": "survey",
+    "survey_date": "2012-10-28",
+    "toilets": "yes",
+    "wikidata": "Q11641386"
+  }
+},
+{
+  "type": "node",
+  "id": 2210736689,
+  "lat": 33.9967218,
+  "lon": 132.7719847,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅風早の郷"
+  }
+},
+{
+  "type": "node",
+  "id": 2275260372,
+  "lat": 34.3335580,
+  "lon": 134.1570328,
+  "tags": {
+    "name": "道の駅「源平の里むれ」",
+    "tourism": "information"
+  }
+},
+{
+  "type": "node",
+  "id": 2275282261,
+  "lat": 33.2237447,
+  "lon": 132.8352378,
+  "tags": {
+    "name": "道の駅「四万十とおわ」",
+    "tourism": "information",
+    "wikidata": "Q11641205",
+    "wikipedia": "ja:道の駅四万十とおわ"
+  }
+},
+{
+  "type": "node",
+  "id": 2279191734,
+  "lat": 33.8808566,
+  "lon": 133.7600737,
+  "tags": {
+    "advertising": "billboard",
+    "name": "道の駅大歩危"
+  }
+},
+{
+  "type": "node",
+  "id": 2279485366,
+  "lat": 33.2224195,
+  "lon": 132.5581891,
+  "tags": {
+    "name": "道の駅うわじま きさいや広場",
+    "tourism": "information",
+    "wikidata": "Q11640665"
+  }
+},
+{
+  "type": "node",
+  "id": 2626509089,
+  "lat": 33.2860390,
+  "lon": 132.5955966,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "name": "道の駅みま",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3687578599,
+  "lat": 34.1274600,
+  "lon": 133.0220593,
+  "tags": {
+    "amenity": "marketplace",
+    "name": "道の駅よしうみいきいき館",
+    "name:en": "Yoshiumi Ikiiki Kan",
+    "phone": "+81 898 25 7338"
+  }
+},
+{
+  "type": "node",
+  "id": 4450199696,
+  "lat": 33.6111795,
+  "lon": 133.6419926,
+  "tags": {
+    "name": "道の駅 南國風良里",
+    "tourism": "information"
+  }
+},
+{
+  "type": "node",
+  "id": 4450255198,
+  "lat": 34.0426576,
+  "lon": 134.0598629,
+  "tags": {
+    "name": "道の駅 貞光ゆうゆう館",
+    "tourism": "information"
+  }
+},
+{
+  "type": "node",
+  "id": 4782034642,
+  "lat": 33.5735144,
+  "lon": 133.3660546,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 土佐和紙工芸村",
+    "wikidata": "Q11641209"
+  }
+},
+{
+  "type": "node",
+  "id": 4782034918,
+  "lat": 33.6435072,
+  "lon": 133.3283990,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 633美の里",
+    "wikidata": "Q11640599"
+  }
+},
+{
+  "type": "node",
+  "id": 4903751257,
+  "lat": 34.3526178,
+  "lon": 133.8261887,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 瀬戸大橋記念公園",
+    "wikidata": "Q11566601"
+  }
+},
+{
+  "type": "node",
+  "id": 4903751259,
+  "lat": 34.1550338,
+  "lon": 133.8219762,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 空の夢もみの木パーク",
+    "wikidata": "Q11641433"
+  }
+},
+{
+  "type": "node",
+  "id": 4948022722,
+  "lat": 33.5683599,
+  "lon": 132.8009512,
+  "tags": {
+    "name": "Odanosatoseseragi Rest Area 道の駅 小田の郷せせらぎ",
+    "opening_hours": "Mo-Su 08:00-17:30",
+    "shop": "supermarket"
+  }
+},
+{
+  "type": "node",
+  "id": 5537507321,
+  "lat": 33.6853313,
+  "lon": 132.6341958,
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 ふたみ ふたみシーサイド公園"
+  }
+},
+{
+  "type": "node",
+  "id": 6478135975,
+  "lat": 33.5736149,
+  "lon": 133.3662826,
+  "tags": {
+    "amenity": "public_bath",
+    "name": "道の駅 土佐和紙工芸村;くらうどクアハウス",
+    "name:ja": "道の駅くらうど"
+  }
+},
+{
+  "type": "node",
+  "id": 6480514839,
+  "lat": 34.2395423,
+  "lon": 134.0071752,
+  "tags": {
+    "amenity": "public_bath",
+    "name": "道の駅;香南楽湯"
+  }
+},
+{
+  "type": "node",
+  "id": 6874544508,
+  "lat": 33.8888955,
+  "lon": 133.8111238,
+  "tags": {
+    "name": "道の駅にしいや",
+    "name:ja": "道の駅にしいや",
+    "name:ja-Latn": "Michi-no-eki Nishi-Iya",
+    "shop": "gift"
+  }
+},
+{
+  "type": "node",
+  "id": 6874544510,
+  "lat": 33.8888559,
+  "lon": 133.8110178,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "道の駅にしいや",
+    "name:ja": "道の駅にしいや",
+    "name:ja-Latn": "Michi-no-eki Nishi-Iya",
+    "wikidata": "Q11640874",
+    "wikipedia": "ja:道の駅にしいや"
+  }
+},
+{
+  "type": "node",
+  "id": 8179662717,
+  "lat": 33.3882422,
+  "lon": 132.9451612,
+  "tags": {
+    "name": "道の駅ゆすはら",
+    "tourism": "viewpoint",
+    "wikidata": "Q11640985",
+    "wikipedia": "ja:道の駅ゆすはら"
+  }
+},
+{
+  "type": "node",
+  "id": 9768601490,
+  "lat": 33.5691297,
+  "lon": 134.3075229,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "道の駅 宍喰温泉",
+    "name:en": "Michi-no-Eki Shishikui-Onsen",
+    "operator": "阿佐海岸鉄道;徳島バス",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10810976850,
+  "lat": 33.3221648,
+  "lon": 133.2350984,
+  "tags": {
+    "name": "道の駅;マルシェなかとさ",
+    "opening_hours": "Mo-Su 09:00-17:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:edy": "yes",
+    "payment:icoca": "yes",
+    "payment:paypay": "yes",
+    "payment:suica": "yes",
+    "payment:waon": "yes",
+    "phone": "+81-889-59-9090",
+    "shop": "supermarket",
+    "tourism": "wilderness_hut",
+    "website": "https://www.nakatosa.com/shop/marche-nakatosa/"
+  }
+},
+{
+  "type": "node",
+  "id": 11011361402,
+  "lat": 34.2544440,
+  "lon": 133.0540740,
+  "tags": {
+    "addr:province": "愛媛県",
+    "amenity": "bicycle_rental",
+    "authentication:app": "yes",
+    "brand": "HELLO CYCLING",
+    "brand:ja": "ハローサイクリング",
+    "brand:wikidata": "Q91231927",
+    "capacity": "15",
+    "contact:website": "https://www.hellocycling.jp",
+    "fee": "yes",
+    "gbfs:station_id": "7880",
+    "gbfs:system_id": "hellocycling",
+    "name": "道の駅 多々羅しまなみ公園(大三島BS至近)",
+    "name:ja": "道の駅 多々羅しまなみ公園(大三島BS至近)",
+    "network": "HELLO CYCLING",
+    "network:ja": "ハローサイクリング",
+    "network:wikidata": "Q91231927"
+  }
+},
+{
+  "type": "node",
+  "id": 11011361403,
+  "lat": 34.2489087,
+  "lon": 133.0054912,
+  "tags": {
+    "addr:province": "愛媛県",
+    "amenity": "bicycle_rental",
+    "authentication:app": "yes",
+    "brand": "HELLO CYCLING",
+    "brand:ja": "ハローサイクリング",
+    "brand:wikidata": "Q91231927",
+    "capacity": "7",
+    "contact:website": "https://www.hellocycling.jp",
+    "fee": "yes",
+    "gbfs:station_id": "7882",
+    "gbfs:system_id": "hellocycling",
+    "name": "道の駅 御島（大山祇神社そば）",
+    "name:ja": "道の駅 御島（大山祇神社そば）",
+    "network": "HELLO CYCLING",
+    "network:ja": "ハローサイクリング",
+    "network:wikidata": "Q91231927"
+  }
+},
+{
+  "type": "node",
+  "id": 11382858970,
+  "lat": 32.9162297,
+  "lon": 132.7123846,
+  "tags": {
+    "amenity": "shower",
+    "name": "道の駅 すくも サニーサイドパーク",
+    "name:en": "Roadside Station Sukumo"
+  }
+},
+{
+  "type": "node",
+  "id": 12301433929,
+  "lat": 33.2300231,
+  "lon": 132.7106394,
+  "tags": {
+    "name": "道の駅 虹の森公園まつの RVパーク",
+    "tourism": "caravan_site"
+  }
+},
+{
+  "type": "node",
+  "id": 13406751135,
+  "lat": 34.1363221,
+  "lon": 134.4736640,
+  "tags": {
+    "name": "足湯(道の駅 いたの)",
+    "natural": "hot_spring"
+  }
+},
+{
+  "type": "way",
+  "id": 24764340,
+  "center": {
+    "lat": 33.9735897,
+    "lon": 134.3675362
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅 温泉の里神山"
+  }
+},
+{
+  "type": "way",
+  "id": 27092172,
+  "center": {
+    "lat": 34.0669396,
+    "lon": 134.1469264
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅 藍ランドうだつ"
+  }
+},
+{
+  "type": "way",
+  "id": 32692876,
+  "center": {
+    "lat": 33.4708093,
+    "lon": 133.9445529
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅大山",
+    "parking": "surface"
+  }
+},
+{
+  "type": "way",
+  "id": 44120885,
+  "center": {
+    "lat": 34.2396162,
+    "lon": 134.0070565
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅 香南楽湯",
+    "wikidata": "Q11641569"
+  }
+},
+{
+  "type": "way",
+  "id": 56121790,
+  "center": {
+    "lat": 34.5339288,
+    "lon": 134.2418904
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "道の駅「大坂城残石記念公園」",
+    "wikidata": "Q11641220",
+    "wikimedia_commons": "Category:Michinoeki Osaka Castle Zanseki Memorial Park",
+    "wikipedia": "ja:道の駅大坂城残石記念公園"
+  }
+},
+{
+  "type": "way",
+  "id": 58515863,
+  "center": {
+    "lat": 33.5338103,
+    "lon": 133.7543090
+  },
+  "tags": {
+    "amenity": "parking",
+    "fee": "no",
+    "name": "道の駅やす",
+    "parking": "surface"
+  }
+},
+{
+  "type": "way",
+  "id": 158687294,
+  "center": {
+    "lat": 34.2504685,
+    "lon": 133.9165809
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 滝宮",
+    "website": "https://michinoeki-takinomiya.com/",
+    "wikidata": "Q11641387",
+    "wikipedia": "ja:道の駅滝宮"
+  }
+},
+{
+  "type": "way",
+  "id": 162341341,
+  "center": {
+    "lat": 34.2543266,
+    "lon": 133.0542913
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅今治市多々羅しまなみ公園",
+    "name:en": "Kamiura Town Tatara Shimanami Park",
+    "name:ja": "道の駅今治市多々羅しまなみ公園",
+    "source": "survey;GSI/KIBAN 25000 http://wiki.osm.org/wiki/GSI_KIBAN",
+    "wikidata": "Q11641134"
+  }
+},
+{
+  "type": "way",
+  "id": 184890475,
+  "center": {
+    "lat": 33.5549749,
+    "lon": 132.6584368
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅内子"
+  }
+},
+{
+  "type": "way",
+  "id": 239019114,
+  "center": {
+    "lat": 33.3871664,
+    "lon": 133.2744608
+  },
+  "tags": {
+    "access": "customers",
+    "amenity": "parking",
+    "name": "道の駅かわうその里すさき",
+    "parking": "surface"
+  }
+},
+{
+  "type": "way",
+  "id": 251110674,
+  "center": {
+    "lat": 34.5338923,
+    "lon": 134.2418608
+  },
+  "tags": {
+    "building:levels": "1",
+    "highway": "services",
+    "name": "道の駅「大坂城残石記念公園」"
+  }
+},
+{
+  "type": "way",
+  "id": 251111311,
+  "center": {
+    "lat": 34.4728240,
+    "lon": 134.2736506
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅 豆島オリーブ公園"
+  }
+},
+{
+  "type": "way",
+  "id": 301206882,
+  "center": {
+    "lat": 34.2585011,
+    "lon": 134.2422619
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅みろく",
+    "wikidata": "Q11640959"
+  }
+},
+{
+  "type": "way",
+  "id": 301207389,
+  "center": {
+    "lat": 34.0427701,
+    "lon": 133.6008595
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅とよはま",
+    "wikidata": "Q11640851"
+  }
+},
+{
+  "type": "way",
+  "id": 301209386,
+  "center": {
+    "lat": 34.2210853,
+    "lon": 134.1742822
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅ながお",
+    "wikidata": "Q11640861",
+    "wikipedia": "ja:道の駅ながお"
+  }
+},
+{
+  "type": "way",
+  "id": 304159961,
+  "center": {
+    "lat": 33.8888603,
+    "lon": 133.8109938
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅にしいや"
+  }
+},
+{
+  "type": "way",
+  "id": 313680091,
+  "center": {
+    "lat": 33.9735673,
+    "lon": 134.3677899
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅 温泉の里神山",
+    "phone": "+81 88 636 7077",
+    "shop": "yes",
+    "wikidata": "Q11641380"
+  }
+},
+{
+  "type": "way",
+  "id": 313767903,
+  "center": {
+    "lat": 33.5690986,
+    "lon": 134.3072308
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 宍喰温泉",
+    "wikidata": "Q11641257",
+    "wikipedia": "ja:道の駅宍喰温泉"
+  }
+},
+{
+  "type": "way",
+  "id": 314061833,
+  "center": {
+    "lat": 34.0426241,
+    "lon": 134.0599328
+  },
+  "tags": {
+    "addr:city": "美馬郡つるぎ町",
+    "addr:housenumber": "11-1",
+    "addr:street": "貞光字大須賀",
+    "building": "yes",
+    "highway": "services",
+    "name": "道の駅 貞光ゆうゆう館",
+    "website": "https://www.yuuyuukan.jp/",
+    "wikidata": "Q11641506",
+    "wikipedia": "ja:道の駅貞光ゆうゆう館"
+  }
+},
+{
+  "type": "way",
+  "id": 320027002,
+  "center": {
+    "lat": 34.1638283,
+    "lon": 134.4988379
+  },
+  "tags": {
+    "building": "retail",
+    "name": "道の駅 第九の里",
+    "opening_hours": "09:00-17:00",
+    "phone": "+81 88 689 1119"
+  }
+},
+{
+  "type": "way",
+  "id": 367070268,
+  "center": {
+    "lat": 33.9928433,
+    "lon": 133.0484145
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅今治湯ノ浦温泉",
+    "name:en": "Imabari Yunoura Onsen",
+    "wikidata": "Q11641135"
+  }
+},
+{
+  "type": "way",
+  "id": 379033878,
+  "center": {
+    "lat": 33.9971040,
+    "lon": 132.7737209
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅風和里"
+  }
+},
+{
+  "type": "way",
+  "id": 379033881,
+  "center": {
+    "lat": 33.9967701,
+    "lon": 132.7731908
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅ふわり"
+  }
+},
+{
+  "type": "way",
+  "id": 436969892,
+  "center": {
+    "lat": 33.9928314,
+    "lon": 133.0488229
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅今治湯ノ浦温泉"
+  }
+},
+{
+  "type": "way",
+  "id": 436969893,
+  "center": {
+    "lat": 33.9928671,
+    "lon": 133.0487342
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅今治湯ノ浦温泉",
+    "wikidata": "Q11641135"
+  }
+},
+{
+  "type": "way",
+  "id": 437431960,
+  "center": {
+    "lat": 34.1637750,
+    "lon": 134.4990942
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅第九の里",
+    "wikidata": "Q11641439",
+    "wikipedia": "ja:道の駅第九の里"
+  }
+},
+{
+  "type": "way",
+  "id": 437431961,
+  "center": {
+    "lat": 34.1644162,
+    "lon": 134.4997362
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅第２Ｐ"
+  }
+},
+{
+  "type": "way",
+  "id": 437433790,
+  "center": {
+    "lat": 33.4300172,
+    "lon": 134.0078172
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅田野駅屋"
+  }
+},
+{
+  "type": "way",
+  "id": 437435819,
+  "center": {
+    "lat": 33.4300657,
+    "lon": 134.0078802
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅田野駅屋",
+    "wikidata": "Q11641410",
+    "wikipedia": "ja:道の駅田野駅屋"
+  }
+},
+{
+  "type": "way",
+  "id": 437439669,
+  "center": {
+    "lat": 32.9587825,
+    "lon": 132.5615781
+  },
+  "tags": {
+    "building": "retail",
+    "building:levels": "2",
+    "name": "道の駅みしょうMIC",
+    "wikidata": "Q11640938"
+  }
+},
+{
+  "type": "way",
+  "id": 437439670,
+  "center": {
+    "lat": 32.9590233,
+    "lon": 132.5616463
+  },
+  "tags": {
+    "access": "customers",
+    "amenity": "parking",
+    "fee": "no",
+    "name": "道の駅みしょうMIC",
+    "operator": "有限会社 愛南総研",
+    "parking": "surface",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 437439671,
+  "center": {
+    "lat": 32.9589072,
+    "lon": 132.5616594
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅みしょうMIC",
+    "opening_hours": "Mo-Su 07:00-19:00",
+    "wikidata": "Q11640938"
+  }
+},
+{
+  "type": "way",
+  "id": 437443472,
+  "center": {
+    "lat": 33.8806807,
+    "lon": 133.7601934
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅大歩危",
+    "name:en": "Road Station Oboke"
+  }
+},
+{
+  "type": "way",
+  "id": 437443473,
+  "center": {
+    "lat": 33.8811831,
+    "lon": 133.7602028
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅大歩危",
+    "name:en": "Road Station Oboke",
+    "wikidata": "Q11641228"
+  }
+},
+{
+  "type": "way",
+  "id": 437562715,
+  "center": {
+    "lat": 33.4808624,
+    "lon": 132.3075414
+  },
+  "tags": {
+    "addr:block_number": "九町越3番耕地",
+    "addr:city": "伊方町",
+    "addr:county": "西宇和群",
+    "addr:postcode": "796-0421",
+    "addr:province": "愛媛県",
+    "building": "retail",
+    "building:levels": "3",
+    "highway": "services",
+    "name": "道の駅伊方きらら館",
+    "smoking": "isolated",
+    "wikidata": "Q11641140",
+    "wikipedia": "ja:道の駅伊方きらら館"
+  }
+},
+{
+  "type": "way",
+  "id": 437563629,
+  "center": {
+    "lat": 33.4476837,
+    "lon": 132.2582159
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅瀬戸町"
+  }
+},
+{
+  "type": "way",
+  "id": 437563632,
+  "center": {
+    "lat": 33.4475425,
+    "lon": 132.2581163
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅瀬戸町"
+  }
+},
+{
+  "type": "way",
+  "id": 437566876,
+  "center": {
+    "lat": 34.1510126,
+    "lon": 134.3524142
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅どなり",
+    "wikidata": "Q11640855"
+  }
+},
+{
+  "type": "way",
+  "id": 437566880,
+  "center": {
+    "lat": 34.1508244,
+    "lon": 134.3525159
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅どなり"
+  }
+},
+{
+  "type": "way",
+  "id": 437566883,
+  "center": {
+    "lat": 34.1509157,
+    "lon": 134.3524702
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅どなり",
+    "wikidata": "Q11640855"
+  }
+},
+{
+  "type": "way",
+  "id": 438237947,
+  "center": {
+    "lat": 33.9529499,
+    "lon": 134.6678319
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅　公方の郷なかがわ"
+  }
+},
+{
+  "type": "way",
+  "id": 440436172,
+  "center": {
+    "lat": 33.2225597,
+    "lon": 132.5587434
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅うわじま きさいや広場 第1駐車場"
+  }
+},
+{
+  "type": "way",
+  "id": 440436187,
+  "center": {
+    "lat": 33.2228175,
+    "lon": 132.5577229
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅うわじま きさいや広場 第3駐車場"
+  }
+},
+{
+  "type": "way",
+  "id": 440436800,
+  "center": {
+    "lat": 33.2223964,
+    "lon": 132.5582805
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅うわじま きさいや広場",
+    "wikidata": "Q11640665",
+    "wikipedia": "ja:道の駅うわじま きさいや広場"
+  }
+},
+{
+  "type": "way",
+  "id": 440437678,
+  "center": {
+    "lat": 33.1394124,
+    "lon": 132.5214625
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅津島"
+  }
+},
+{
+  "type": "way",
+  "id": 440437750,
+  "center": {
+    "lat": 33.1395046,
+    "lon": 132.5210562
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅津島"
+  }
+},
+{
+  "type": "way",
+  "id": 441711915,
+  "center": {
+    "lat": 32.7932518,
+    "lon": 132.8832408
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅 めじかの里土佐清水"
+  }
+},
+{
+  "type": "way",
+  "id": 441711916,
+  "center": {
+    "lat": 32.7934758,
+    "lon": 132.8834571
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅 めじかの里土佐清水"
+  }
+},
+{
+  "type": "way",
+  "id": 441712502,
+  "center": {
+    "lat": 32.8284308,
+    "lon": 132.7091630
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅大月"
+  }
+},
+{
+  "type": "way",
+  "id": 441712504,
+  "center": {
+    "lat": 32.8291338,
+    "lon": 132.7094607
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅 大月"
+  }
+},
+{
+  "type": "way",
+  "id": 441713653,
+  "center": {
+    "lat": 32.9160574,
+    "lon": 132.7130343
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅すくも"
+  }
+},
+{
+  "type": "way",
+  "id": 441713656,
+  "center": {
+    "lat": 32.9160000,
+    "lon": 132.7126050
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅すくも",
+    "wikidata": "Q11640791"
+  }
+},
+{
+  "type": "way",
+  "id": 441716678,
+  "center": {
+    "lat": 33.2861454,
+    "lon": 132.5958812
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅みま",
+    "toilets": "yes",
+    "website": "https://www.michinoekimima.jp",
+    "wikidata": "Q11640953",
+    "wikipedia": "ja:道の駅みま"
+  }
+},
+{
+  "type": "way",
+  "id": 442740598,
+  "center": {
+    "lat": 33.3071112,
+    "lon": 134.1101089
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅キラメッセ室戸"
+  }
+},
+{
+  "type": "way",
+  "id": 442740599,
+  "center": {
+    "lat": 33.3067548,
+    "lon": 134.1100845
+  },
+  "tags": {
+    "area": "yes",
+    "contact:website": "https://www.kiramesse-muroto.jp/",
+    "highway": "services",
+    "name": "道の駅キラメッセ室戸",
+    "wikidata": "Q11641022",
+    "wikipedia": "ja:道の駅キラメッセ室戸"
+  }
+},
+{
+  "type": "way",
+  "id": 442741063,
+  "center": {
+    "lat": 33.4705923,
+    "lon": 133.9442957
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅大山",
+    "wikidata": "Q11641221",
+    "wikipedia": "ja:道の駅大山"
+  }
+},
+{
+  "type": "way",
+  "id": 442741606,
+  "center": {
+    "lat": 33.5340060,
+    "lon": 133.7541791
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅やす",
+    "wikidata": "Q11640974",
+    "wikipedia": "ja:道の駅やす"
+  }
+},
+{
+  "type": "way",
+  "id": 442742904,
+  "center": {
+    "lat": 33.3876352,
+    "lon": 133.2747180
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅すさき"
+  }
+},
+{
+  "type": "way",
+  "id": 442742906,
+  "center": {
+    "lat": 33.3876172,
+    "lon": 133.2747443
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅かわうその里すさき"
+  }
+},
+{
+  "type": "way",
+  "id": 442744175,
+  "center": {
+    "lat": 33.2313573,
+    "lon": 133.1498320
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅あぐり窪川"
+  }
+},
+{
+  "type": "way",
+  "id": 442744177,
+  "center": {
+    "lat": 33.2312534,
+    "lon": 133.1495719
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅あぐり窪川",
+    "wikidata": "Q11640613"
+  }
+},
+{
+  "type": "way",
+  "id": 442745238,
+  "center": {
+    "lat": 33.0872109,
+    "lon": 133.1016651
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅土佐佐賀"
+  }
+},
+{
+  "type": "way",
+  "id": 442748243,
+  "center": {
+    "lat": 33.0344678,
+    "lon": 133.0276015
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅ビオスおおがた"
+  }
+},
+{
+  "type": "way",
+  "id": 442748244,
+  "center": {
+    "lat": 33.0342392,
+    "lon": 133.0277737
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅ビオスおおがた",
+    "name:en": "Michi-no-Eki Bios Ōgata",
+    "wikidata": "Q11641055"
+  }
+},
+{
+  "type": "way",
+  "id": 443115937,
+  "center": {
+    "lat": 33.7299119,
+    "lon": 134.5300259
+  },
+  "tags": {
+    "contact:website": "http://www.michinoeki-tokushima.com/hiwasa/hiwasa.html",
+    "highway": "services",
+    "name": "道の駅日和佐",
+    "wikidata": "Q11641311",
+    "wikipedia": "ja:道の駅日和佐"
+  }
+},
+{
+  "type": "way",
+  "id": 624778417,
+  "center": {
+    "lat": 34.2263871,
+    "lon": 133.7222031
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅ふれあいパークみの",
+    "wikidata": "Q11640922",
+    "wikipedia": "ja:道の駅ふれあいパークみの"
+  }
+},
+{
+  "type": "way",
+  "id": 625531091,
+  "center": {
+    "lat": 33.6614689,
+    "lon": 132.8983980
+  },
+  "tags": {
+    "addr:full": "愛媛県上浮穴郡久万高原町入野1855番地6",
+    "addr:postcode": "791-1202",
+    "highway": "services",
+    "name": "道の駅 天空の郷さんさん",
+    "phone": "+81 892 21 3445",
+    "website": "https://www.kumakogen-sansan.com/",
+    "wikidata": "Q17230429"
+  }
+},
+{
+  "type": "way",
+  "id": 625718452,
+  "center": {
+    "lat": 34.2536558,
+    "lon": 133.0537655
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅；多々羅しまなみ公園"
+  }
+},
+{
+  "type": "way",
+  "id": 625718810,
+  "center": {
+    "lat": 34.2538489,
+    "lon": 133.0531567
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅；多々羅しまなみ公園"
+  }
+},
+{
+  "type": "way",
+  "id": 625735287,
+  "center": {
+    "lat": 34.1275191,
+    "lon": 133.0220061
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅よしうみいきいき館"
+  }
+},
+{
+  "type": "way",
+  "id": 625735465,
+  "center": {
+    "lat": 34.1280255,
+    "lon": 133.0212799
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅よしうみいきいき館"
+  }
+},
+{
+  "type": "way",
+  "id": 625736144,
+  "center": {
+    "lat": 34.1277784,
+    "lon": 133.0214642
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅よしうみいきいき館",
+    "wikidata": "Q11640993"
+  }
+},
+{
+  "type": "way",
+  "id": 627420875,
+  "center": {
+    "lat": 34.2023083,
+    "lon": 133.0756117
+  },
+  "tags": {
+    "highway": "services",
+    "landuse": "retail",
+    "name": "道の駅伯方SCパーク",
+    "name:en": "Hakata S・C Park",
+    "website": "https://imabari-shimanami.jp/hakata/",
+    "wikidata": "Q11641144"
+  }
+},
+{
+  "type": "way",
+  "id": 631660762,
+  "center": {
+    "lat": 33.9239545,
+    "lon": 133.6408732
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅 霧の森",
+    "wikidata": "Q5491238",
+    "wikipedia": "ja:道の駅霧の森"
+  }
+},
+{
+  "type": "way",
+  "id": 660693317,
+  "center": {
+    "lat": 34.1315356,
+    "lon": 133.6433520
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅ことひき専用駐車場"
+  }
+},
+{
+  "type": "way",
+  "id": 690263357,
+  "center": {
+    "lat": 34.4728504,
+    "lon": 134.2737328
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅豆島オリーブ公園"
+  }
+},
+{
+  "type": "way",
+  "id": 690494885,
+  "center": {
+    "lat": 33.5735926,
+    "lon": 133.3662779
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅土佐和紙工芸村;くらうどクアハウス",
+    "wikidata": "Q11641209"
+  }
+},
+{
+  "type": "way",
+  "id": 690495295,
+  "center": {
+    "lat": 33.5736019,
+    "lon": 133.3660339
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅土佐和紙工芸村"
+  }
+},
+{
+  "type": "way",
+  "id": 690693881,
+  "center": {
+    "lat": 34.2394640,
+    "lon": 134.0072215
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅;香南楽湯",
+    "wikidata": "Q11641569"
+  }
+},
+{
+  "type": "way",
+  "id": 714387569,
+  "center": {
+    "lat": 34.2027824,
+    "lon": 133.0754968
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅伯方S・Cパーク"
+  }
+},
+{
+  "type": "way",
+  "id": 943809098,
+  "center": {
+    "lat": 34.1365686,
+    "lon": 134.4736625
+  },
+  "tags": {
+    "building": "retail",
+    "name": "道の駅　いたの",
+    "wikidata": "Q105072263",
+    "wikipedia": "ja:道の駅いたの"
+  }
+},
+{
+  "type": "way",
+  "id": 987595670,
+  "center": {
+    "lat": 33.3552605,
+    "lon": 132.5274658
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅「どんぶり館」",
+    "name:ja": "道の駅どんぶり館",
+    "name:ja-Hira": "みちのえき どんぶりかん",
+    "opening_hours": "08:00-18:00",
+    "operator": "株式会社どんぶり館",
+    "website": "https://donburikan.com/",
+    "wikidata": "Q11273976",
+    "wikipedia": "ja:道の駅どんぶり館"
+  }
+},
+{
+  "type": "way",
+  "id": 1014591545,
+  "center": {
+    "lat": 33.2295335,
+    "lon": 132.7100647
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅虹の森公園まつの",
+    "website": "https://morinokuni.or.jp/",
+    "wikidata": "Q11641492",
+    "wikipedia": "ja:道の駅虹の森公園まつの"
+  }
+},
+{
+  "type": "way",
+  "id": 1037497928,
+  "center": {
+    "lat": 34.1583481,
+    "lon": 134.5797945
+  },
+  "tags": {
+    "area": "yes",
+    "highway": "services",
+    "name": "道の駅くるくる なると",
+    "source": "Bing",
+    "start_date": "2022-04-29",
+    "website": "https://www.kurukurunaruto.com/",
+    "wikidata": "Q111338027",
+    "wikipedia": "ja:道の駅くるくる なると"
+  }
+},
+{
+  "type": "way",
+  "id": 1134737167,
+  "center": {
+    "lat": 33.6143038,
+    "lon": 132.9697964
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅みかわ",
+    "wikidata": "Q11640932",
+    "wikipedia": "ja:道の駅みかわ (愛媛県)"
+  }
+},
+{
+  "type": "way",
+  "id": 1134744565,
+  "center": {
+    "lat": 33.4608677,
+    "lon": 132.6772513
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅清流の里ひじかわ",
+    "wikidata": "Q11641378",
+    "wikipedia": "ja:道の駅清流の里ひじかわ"
+  }
+},
+{
+  "type": "way",
+  "id": 1135079864,
+  "center": {
+    "lat": 33.6699875,
+    "lon": 132.6947641
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅なかやま",
+    "wikidata": "Q56254986",
+    "wikipedia": "ja:道の駅なかやま"
+  }
+},
+{
+  "type": "way",
+  "id": 1135080714,
+  "center": {
+    "lat": 33.6408014,
+    "lon": 132.7996860
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅ひろた",
+    "wikidata": "Q11640905",
+    "wikipedia": "ja:道の駅ひろた"
+  }
+},
+{
+  "type": "way",
+  "id": 1135081904,
+  "center": {
+    "lat": 33.5685022,
+    "lon": 132.8007212
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅小田の郷せせらぎ",
+    "wikidata": "Q11641270",
+    "wikipedia": "ja:道の駅小田の郷せせらぎ"
+  }
+},
+{
+  "type": "way",
+  "id": 1135883497,
+  "center": {
+    "lat": 33.5550009,
+    "lon": 132.6584385
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅内子",
+    "wikidata": "Q11641159",
+    "wikipedia": "ja:道の駅内子フレッシュパークからり"
+  }
+},
+{
+  "type": "way",
+  "id": 1168510071,
+  "center": {
+    "lat": 33.3222739,
+    "lon": 133.2347326
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 なかとさ",
+    "website": "https://www.nakatosa.com/",
+    "wikidata": "Q33914475",
+    "wikipedia": "ja:道の駅なかとさ"
+  }
+},
+{
+  "type": "way",
+  "id": 1174259430,
+  "center": {
+    "lat": 34.1103580,
+    "lon": 133.7982289
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 たからだの里さいた",
+    "website": "https://takaradanosato.co.jp/",
+    "wikidata": "Q11640805",
+    "wikipedia": "ja:道の駅たからだの里さいた"
+  }
+},
+{
+  "type": "way",
+  "id": 1174536198,
+  "center": {
+    "lat": 34.1699738,
+    "lon": 134.0824078
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 しおのえ",
+    "wikidata": "Q11640765",
+    "wikipedia": "ja:道の駅しおのえ"
+  }
+},
+{
+  "type": "way",
+  "id": 1175540681,
+  "center": {
+    "lat": 34.0545408,
+    "lon": 134.0572135
+  },
+  "tags": {
+    "building": "retail",
+    "name": "道の駅「みまの里」",
+    "wikidata": "Q55215611",
+    "wikipedia": "ja:道の駅みまの里"
+  }
+},
+{
+  "type": "way",
+  "id": 1190094426,
+  "center": {
+    "lat": 33.5030760,
+    "lon": 133.3173807
+  },
+  "tags": {
+    "building": "retail",
+    "name": "道の駅「まきのさんの道の駅・佐川」"
+  }
+},
+{
+  "type": "way",
+  "id": 1205855490,
+  "center": {
+    "lat": 33.3798485,
+    "lon": 132.7494875
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅きなはい屋しろかわ",
+    "wikidata": "Q11640718",
+    "wikipedia": "ja:道の駅きなはい屋しろかわ"
+  }
+},
+{
+  "type": "way",
+  "id": 1211902631,
+  "center": {
+    "lat": 34.2490764,
+    "lon": 133.0054937
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅しまなみの駅御島",
+    "name:en": "Shimanaminoeki Mishima",
+    "website": "https://www.mishima-eki.jp/",
+    "wikidata": "Q11640770",
+    "wikipedia": "ja:道の駅しまなみの駅御島"
+  }
+},
+{
+  "type": "way",
+  "id": 1223406343,
+  "center": {
+    "lat": 33.9531279,
+    "lon": 134.6676655
+  },
+  "tags": {
+    "building": "yes",
+    "name": "道の駅　公方の郷なかがわ"
+  }
+},
+{
+  "type": "way",
+  "id": 1321817369,
+  "center": {
+    "lat": 33.1821017,
+    "lon": 132.9716257
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 四万十大正",
+    "wikidata": "Q11641206",
+    "wikipedia": "ja:道の駅四万十大正"
+  }
+},
+{
+  "type": "way",
+  "id": 1324114227,
+  "center": {
+    "lat": 33.2236348,
+    "lon": 132.8352220
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 四万十とおわ",
+    "website": "https://toowashimanto.jp/",
+    "wikidata": "Q11641205",
+    "wikipedia": "ja:道の駅四万十とおわ"
+  }
+},
+{
+  "type": "way",
+  "id": 1327834051,
+  "center": {
+    "lat": 33.1731714,
+    "lon": 132.7890665
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 よって西土佐",
+    "website": "https://yotte.jp/",
+    "wikidata": "Q24870025",
+    "wikipedia": "ja:道の駅よって西土佐"
+  }
+},
+{
+  "type": "way",
+  "id": 1332418032,
+  "center": {
+    "lat": 33.2537971,
+    "lon": 132.6870393
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 広見森の三角ぼうし",
+    "wikidata": "Q11641293",
+    "wikipedia": "ja:道の駅広見森の三角ぼうし"
+  }
+},
+{
+  "type": "way",
+  "id": 1341515410,
+  "center": {
+    "lat": 33.2218969,
+    "lon": 132.5579268
+  },
+  "tags": {
+    "amenity": "parking",
+    "name": "道の駅うわじま きさいや広場 第2駐車場"
+  }
+},
+{
+  "type": "way",
+  "id": 1349134342,
+  "center": {
+    "lat": 34.4710818,
+    "lon": 134.2360665
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅「小豆島ふるさと村」",
+    "wikidata": "Q11641274",
+    "wikipedia": "ja:道の駅小豆島ふるさと村"
+  }
+},
+{
+  "type": "way",
+  "id": 1429960578,
+  "center": {
+    "lat": 34.2854933,
+    "lon": 134.2531649
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 津田の松原",
+    "wikidata": "Q11641369"
+  }
+},
+{
+  "type": "way",
+  "id": 1461675279,
+  "center": {
+    "lat": 34.1361824,
+    "lon": 134.4736226
+  },
+  "tags": {
+    "amenity": "toilets",
+    "building": "yes",
+    "name": "トイレ(道の駅 いたの)"
+  }
+},
+{
+  "type": "way",
+  "id": 1461675283,
+  "center": {
+    "lat": 34.1363152,
+    "lon": 134.4739682
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 いたの",
+    "name:en": "Michi-no-Eki Itano",
+    "operator": "板野町",
+    "operator:type": "municipality",
+    "services": "roadside_station"
+  }
+},
+{
+  "type": "way",
+  "id": 1461675284,
+  "center": {
+    "lat": 34.1361364,
+    "lon": 134.4732876
+  },
+  "tags": {
+    "leisure": "dog_park",
+    "name": "ドッグラン（道の駅 いたの）",
+    "name:en": "Michi-no-eki Itano Dog Run"
+  }
+},
+{
+  "type": "way",
+  "id": 1468130747,
+  "center": {
+    "lat": 33.9323015,
+    "lon": 134.5232040
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅「ひなの里かつうら」"
+  }
+},
+{
+  "type": "way",
+  "id": 1469755574,
+  "center": {
+    "lat": 33.8631570,
+    "lon": 134.5017471
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅鷲の里"
+  }
+},
+{
+  "type": "way",
+  "id": 1472554831,
+  "center": {
+    "lat": 33.7976534,
+    "lon": 134.4460293
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 もみじ川温泉",
+    "wikidata": "Q11640970"
+  }
+},
+{
+  "type": "way",
+  "id": 1519474666,
+  "center": {
+    "lat": 33.9530365,
+    "lon": 134.6676817
+  },
+  "tags": {
+    "highway": "services",
+    "name": "道の駅 公方の郷なかがわ"
+  }
+}
+
+  ]
+}

@@ -5,171 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>四国版 災害情報マップ｜南海トラフ対策</title>
 <link rel="stylesheet" href="./lib/leaflet.css">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#1f2937;}
-  #app{display:flex;flex-direction:column;height:100vh;}
-
-  /* E-4: 緊急119/118バナー */
-  #emergencyBanner{
-    position:sticky;top:0;z-index:9999;background:#dc2626;color:#fff;
-    padding:6px 10px;text-align:center;font-size:0.8rem;font-weight:bold;
-    display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;
-  }
-  #emergencyBanner a{color:#fff;text-decoration:underline;}
-  #emergencyBanner .phone-btn{
-    display:inline-block;background:#fff;color:#dc2626;border-radius:4px;
-    padding:2px 10px;text-decoration:none;font-size:0.85rem;font-weight:bold;
-  }
-
-  /* ヘッダー */
-  header{
-    background:#0B2645;color:#fff;
-    display:flex;flex-direction:column;gap:4px;
-    padding:6px 10px;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,.3);
-  }
-  header .top-row{
-    display:flex;align-items:center;gap:8px;font-size:13px;
-  }
-  header .top-row h1{margin:0;font-size:14px;font-weight:700;}
-  header .top-row .tag{background:#DC2626;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;}
-  header .top-row .time{font-size:10px;color:#B4C3D7;margin-left:auto;}
-  header .top-row .mod-badge{background:#7c3aed;color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;}
-
-  /* タブ */
-  .tabs{display:flex;gap:3px;flex-wrap:wrap;}
-  .tabs button{
-    background:#374151;color:#cbd5e1;border:none;padding:4px 10px;
-    border-radius:4px;cursor:pointer;font-size:11px;transition:all .15s;
-  }
-  .tabs button.active{background:#2563eb;color:#fff;font-weight:bold;}
-  .tabs button:hover{background:#4b5563;}
-
-  /* チップUIバー */
-  .chips-bar{
-    display:none;background:#f3f4f6;padding:6px 10px;
-    overflow-x:auto;white-space:nowrap;border-bottom:1px solid #e5e7eb;
-    gap:4px;align-items:center;
-  }
-  .chip{
-    display:inline-block;background:#fff;border:1px solid #d1d5db;
-    padding:3px 10px;border-radius:16px;font-size:0.8rem;
-    cursor:pointer;user-select:none;transition:all .15s;flex:none;
-  }
-  .chip:hover{background:#e5e7eb;}
-  .chip.active{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:bold;}
-
-  /* P0-6: FDMAサマリーパネル */
-  #fdmaPanel{
-    position:absolute;top:10px;right:10px;z-index:500;
-    background:rgba(255,255,255,.95);border-radius:8px;
-    box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:0.8rem;
-    max-width:280px;overflow:hidden;transition:all .2s;
-  }
-  #fdmaPanel .fdma-header{
-    background:#1e3a5f;color:#fff;padding:6px 10px;
-    display:flex;justify-content:space-between;align-items:center;cursor:pointer;
-  }
-  #fdmaPanel .fdma-header .fdma-title{font-weight:bold;font-size:0.85rem;}
-  #fdmaPanel .fdma-header .fdma-toggle{font-size:0.8rem;background:none;border:none;color:#fff;cursor:pointer;}
-  #fdmaPanel .fdma-body{padding:8px 10px;display:none;}
-  #fdmaPanel .fdma-body.open{display:block;}
-  #fdmaPanel .fdma-total{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:6px;}
-  #fdmaPanel .fdma-total div{background:#f8fafc;padding:4px 6px;border-radius:4px;text-align:center;}
-  #fdmaPanel .fdma-total .num{font-size:1.1rem;font-weight:bold;color:#1e3a5f;}
-  #fdmaPanel .fdma-total .lbl{font-size:0.7rem;color:#666;}
-  #fdmaPanel .fdma-pref{font-size:0.75rem;border-top:1px solid #e5e7eb;padding-top:4px;margin-top:4px;}
-  #fdmaPanel .fdma-pref-row{display:flex;justify-content:space-between;padding:2px 0;}
-  #fdmaPanel .fdma-time{font-size:0.7rem;color:#999;text-align:right;padding-top:4px;}
-
-  /* P1-6: 孤立可能性集落 県別統計パネル */
-  #isoPanel{
-    position:absolute;top:10px;right:10px;z-index:499;
-    background:rgba(255,255,255,.95);border-radius:8px;
-    box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:0.8rem;
-    max-width:280px;overflow:hidden;margin-top:88px;
-  }
-  #isoPanel .fdma-header{background:#7c3aed;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
-  #isoPanel .fdma-header .fdma-title{font-weight:bold;font-size:0.85rem;}
-  #isoPanel .fdma-header .fdma-toggle{font-size:0.8rem;background:none;border:none;color:#fff;cursor:pointer;}
-  #isoPanel .fdma-body{padding:8px 10px;display:none;}
-  #isoPanel .fdma-body.open{display:block;}
-
-  /* P0-9: #mod 管理画面 */
-  #modPanel{
-    display:none;flex:1;width:100%;overflow-y:auto;
-    background:#f9fafb;padding:16px;
-  }
-  #modPanel .mod-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-  #modPanel .mod-header h2{font-size:1.2rem;}
-  #modPanel .mod-actions{display:flex;gap:8px;}
-  #modPanel .mod-actions button{padding:6px 12px;border-radius:4px;border:none;cursor:pointer;font-size:0.85rem;}
-  #modPanel table{width:100%;border-collapse:collapse;font-size:0.85rem;}
-  #modPanel th{background:#1e3a5f;color:#fff;padding:8px;text-align:left;position:sticky;top:0;}
-  #modPanel td{padding:8px;border-bottom:1px solid #e5e7eb;vertical-align:top;}
-  #modPanel tr:hover{background:#f1f5f9;}
-  #modPanel .status-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:bold;}
-  #modPanel .status-pending{background:#fef3c7;color:#92400e;}
-  #modPanel .status-approved{background:#d1fae5;color:#065f46;}
-  #modPanel .status-rejected{background:#fee2e2;color:#991b1b;}
-  #modPanel .btn-approve{background:#059669;color:#fff;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;}
-  #modPanel .btn-reject{background:#dc2626;color:#fff;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;}
-  #modPanel .btn-csv{background:#2563eb;color:#fff;}
-  #modPanel .mod-back{background:#6b7280;color:#fff;}
-
-  /* 地図エリア */
-  #map{flex:1;width:100%;height:100%;}
-
-  /* マーカー */
-  .marker-pin{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);}
-  .pin-active{background:#10b981;}
-  .pin-warning{background:#f59e0b;}
-  .pin-expired{background:#6b7280;}
-  .incident-pin{width:28px;height:28px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);}
-
-  /* FAB */
-  .fab-report{
-    position:absolute;bottom:30px;right:20px;z-index:1000;
-    background:#dc2626;color:#fff;border:none;padding:12px 20px;
-    border-radius:30px;font-weight:bold;font-size:0.95rem;
-    box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer;transition:transform .2s;
-  }
-  .fab-report:hover{transform:scale(1.05);background:#b91c1c;}
-
-  /* モーダル */
-  .modal-overlay{
-    position:fixed;top:0;left:0;width:100%;height:100%;
-    background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;
-  }
-  .modal-content{
-    background:#fff;width:90%;max-width:480px;border-radius:8px;overflow:hidden;
-    box-shadow:0 10px 25px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;
-  }
-  .modal-header{background:#1f2937;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
-  .modal-header h3{margin:0;font-size:1rem;}
-  .modal-close{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;}
-  .modal-body{padding:16px;}
-  .modal-alert-box{background:#fef2f2;border-left:4px solid #dc2626;color:#991b1b;padding:8px 12px;font-size:0.85rem;margin-bottom:12px;border-radius:4px;}
-  .modal-alert-box a{color:#991b1b;font-weight:bold;}
-  .modal-body label{display:block;font-size:0.85rem;font-weight:bold;color:#374151;margin-top:10px;margin-bottom:2px;}
-  .modal-body select,.modal-body textarea,.modal-body input[type="file"]{width:100%;padding:6px;border:1px solid #d1d5db;border-radius:4px;font-size:0.85rem;}
-  .modal-body textarea{resize:vertical;}
-
-  /* 免責 */
-  .disclaimer{background:rgba(11,38,69,.95);color:#cdd9ea;font-size:9.5px;padding:3px 8px;line-height:1.4;text-align:center;}
-
-  @media (max-width:600px){
-    header .top-row h1{font-size:12px;}
-    .tabs button{font-size:10px;padding:3px 7px;}
-    .chip{font-size:0.75rem;padding:2px 8px;}
-    #emergencyBanner{font-size:0.7rem;}
-    .fab-report{font-size:0.85rem;padding:10px 16px;bottom:20px;right:16px;}
-    #fdmaPanel{max-width:220px;font-size:0.75rem;top:8px;right:8px;}
-    #modPanel{padding:10px;font-size:0.8rem;}
-    #modPanel table{font-size:0.75rem;}
-    #modPanel th,#modPanel td{padding:4px;}
-  }
-</style>
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <div id="app">
@@ -203,12 +39,16 @@
       </div>
       <button id="btnResources" onclick="toggleResourcePanel()" style="background:#059669;border:none;color:#fff;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:bold;">🔗 関連リンク</button>
     </div>
-    <!-- P1-1: 津波浸水想定オーバーレイ切替 -->
+    <!-- P1-1: 津波浸水想定オーバーレイ切替 + R10: タイル切替 -->
     <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;flex-wrap:wrap;">
       <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#B4C3D7;">
         <input type="checkbox" id="tsunamiToggle" onchange="toggleTsunamiOverlay(this.checked)">
         🌊 津波浸水想定（南海トラフ最大クラス）
       </label>
+      <span style="color:#B4C3D7;">｜地図:</span>
+      <button class="tile-btn active" data-tile="pale" onclick="setTileStyle('pale')">淡色</button>
+      <button class="tile-btn" data-tile="std" onclick="setTileStyle('std')">標準</button>
+      <button class="tile-btn" data-tile="photo" onclick="setTileStyle('photo')">写真</button>
     </div>
   </header>
 
@@ -272,6 +112,19 @@
       <div class="fdma-total" id="isoTotal"></div>
       <div class="fdma-pref" id="isoPref"></div>
       <div class="fdma-time" id="isoTime">出典: 内閣府 H21 調査（uub.jp 集計）</div>
+    </div>
+  </div>
+
+  <!-- P2-3: 停電情報パネル -->
+  <div id="outagePanel">
+    <div class="fdma-header" onclick="toggleOutagePanel()">
+      <span class="fdma-title">💡 停電情報（四国電力）</span>
+      <button class="fdma-toggle" id="outageToggleBtn">▼</button>
+    </div>
+    <div class="fdma-body" id="outageBody">
+      <div class="fdma-total" id="outageTotal"></div>
+      <div class="fdma-pref" id="outagePref"></div>
+      <div class="fdma-time" id="outageTime"></div>
     </div>
   </div>
 
@@ -377,15 +230,19 @@
 <script src="./data/tsunami_towers.js"></script>
 <script src="./data/tsunami_inundation.js"></script>
 <script src="./data/river_cameras.js"></script>
+<script src="./data/michinoeki.js"></script>
+<script src="./data/outage.js"></script>
 
 <!-- support.js + parser.js (TDD検証済み) -->
 <script type="module">
   import { getSupportStatus } from './src/logic/support.js';
   import { parseJMAQuake } from './src/logic/parser.js';
   import { calcRiverRisk } from './src/logic/river.js';
+  import { INCIDENT_META, incidentMeta } from './src/logic/constants.js';
   window.__support = { getSupportStatus };
   window.__parser = { parseJMAQuake };
   window.__river = { calcRiverRisk };
+  window.__constants = { INCIDENT_META, incidentMeta };
 </script>
 
 <script>
@@ -393,6 +250,7 @@
 //  グローバル状態
 // ═══════════════════════════════════════════════
 let map;
+let tileLayer = null; // R10: タイル切替用（std/pale/photo）
 let currentMode = 'incidents';
 let currentCategory = 'all';
 let currentIncidentType = 'all';
@@ -406,12 +264,45 @@ let towerCanvas = null; // 津波避難施設 canvas レンダラー
 let inundationLayer = L.layerGroup(); // P1-1: 津波浸水想定オーバーレイ
 let prefBoundsLayer = L.layerGroup(); // P1-4: 県境表示
 let riverLayer = L.layerGroup(); // P2-1: 河川カメラ・水位計
+let michinoekiLayer = L.layerGroup(); // P2-2: 道の駅・防災拠点
+let outageLayer = L.layerGroup(); // P2-3: 停電エリア
+let marineRouteLayer = L.layerGroup(); // P1-3: 海上輸送ルート
 let isFdmaOpen = false;
 const cfg = window.CONFIG || {};
 
-// P0-9: 管理画面 ダミー投稿データ（本番はKVから取得）
+// P0-9: 管理画面 投稿データ（KVから取得。失敗時はダミーフォールバック）
 let pendingReports = [];
-const MOD_AUTH_KEY = 'shikoku-quake-secret-key-2026';
+let adminKey = null; // セッション内保持（R1: フロントにキーを埋め込まない）
+const API_BASE = '/api'; // デプロイ環境に応じて変更可
+
+// ═══════════════════════════════════════════════
+//  セキュリティヘルパー（R3: XSS対策）
+// ═══════════════════════════════════════════════
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** javascript: スキーム等をブロックした安全なURL */
+function safeUrl(url) {
+  if (!url) return '#';
+  return /^(https?:|mailto:|tel:)/i.test(url) ? escapeHtml(url) : '#';
+}
+
+/** 円形divIcon生成（R9: レイヤー間の重複パターン共通化） */
+function makeCircleIcon(bg, symbol, size = 28) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:${Math.max(10, Math.round(size / 2))}px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;">${symbol}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
+  });
+}
 
 // ═══════════════════════════════════════════════
 //  初期化
@@ -420,21 +311,21 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   updateClock();
   setInterval(updateClock, 1000);
-  setInterval(() => {
-    if (currentMode === 'support') renderSupportMarkers();
-    if (currentMode === 'incidents') renderIncidentMarkers();
-  }, cfg.AUTO_RELOAD_INTERVAL_MS || 600000);
+  setInterval(reloadDataFiles, cfg.AUTO_RELOAD_INTERVAL_MS || 600000); // P0-10: 10分自動リロード
 
   renderFdmaPanel();
   renderIsoPanel(); // P1-6: 孤立可能性集落 県別統計
-  initModData();
   renderPortsMarkers(); // P1-3
+  renderMarineRoutes(); // P1-3: 海上輸送ルート
   renderIsolationMarkers(); // P1
   renderTowerMarkers(); // P1-2
   renderTsunamiOverlay(); // P1-1（チェック状態に応じて表示）
   renderPrefBounds(); // P1-4: 県境
   renderResourcePanel(); // P1-5: 関連リンク
   renderRiverMarkers(); // P2-1: 河川カメラ・水位計
+  renderMichinoekiMarkers(); // P2-2: 道の駅・防災拠点
+  renderOutagePanel(); // P2-3: 停電サマリー
+  renderOutageMarkers(); // P2-3: 停電エリア
   fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
   setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
 
@@ -446,7 +337,73 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#mod') openAdmin();
     else if (document.getElementById('modPanel').style.display === 'flex') closeAdmin();
   });
+
+  // R11: 管理テーブル イベント委譲（動的ボタン。onclick属性廃止）
+  document.getElementById('modTableBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-approve, .btn-reject, .btn-locfix');
+    if (!btn || !btn.dataset.id) return;
+    const id = btn.dataset.id;
+    if (btn.classList.contains('btn-approve')) modApprove(id);
+    else if (btn.classList.contains('btn-reject')) modReject(id);
+    else modLocFix(id);
+  });
 });
+
+// ═══════════════════════════════════════════════
+//  P0-10: 10分自動リロード
+//  data/*.js を ?t= 付きで再取得 → 全レイヤー再構築
+//  （各 render* 関数は自身のレイヤーを clearLayers する前提）
+// ═══════════════════════════════════════════════
+// 動的データのみ再取得対象。巨大・静的データは除外:
+//  shelters.js(1.3MB) / tsunami_towers.js(1.3MB) / tsunami_inundation.js(535KB)
+const DYNAMIC_DATA_FILES = [
+  'data/life_support.js',
+  'data/incidents.js',
+  'data/fdma_latest.js',
+  'data/facilities.js',
+  'data/ports.js',
+  'data/isolation.js',
+  'data/river_cameras.js',
+  'data/michinoeki.js',
+  'data/outage.js',
+];
+
+async function reloadDataFiles() {
+  const t = Date.now();
+  const results = await Promise.allSettled(DYNAMIC_DATA_FILES.map(async (file) => {
+    const res = await fetch(file + '?t=' + t, { cache: 'no-store' });
+    if (!res.ok) throw new Error(file + ' HTTP ' + res.status);
+    const code = await res.text();
+    // window.* 形式のため indirect eval でグローバル再評価
+    (0, eval)(code);
+  }));
+  const failed = results.filter(r => r.status === 'rejected');
+  if (failed.length) console.warn('P0-10 データリロード失敗:', failed.map(f => f.reason && f.reason.message));
+  refreshAllLayers();
+}
+
+function refreshAllLayers() {
+  renderFdmaPanel();
+  renderIsoPanel();
+  if (currentMode === 'support') renderSupportMarkers();
+  else renderIncidentMarkers();
+  renderFacilitiesMarkers();
+  renderPortsMarkers();
+  renderMarineRoutes();
+  renderIsolationMarkers();
+  renderTowerMarkers();
+  renderTsunamiOverlay();
+  renderPrefBounds();
+  renderRiverMarkers();
+  renderMichinoekiMarkers();
+  renderOutagePanel();
+  renderOutageMarkers();
+  fetchJMAQuakeLive();
+}
+
+window.reloadDataFiles = reloadDataFiles;
+window.refreshAllLayers = refreshAllLayers;
+window.DYNAMIC_DATA_FILES = DYNAMIC_DATA_FILES;
 
 function updateClock() {
   document.getElementById('headerTime').textContent =
@@ -464,7 +421,7 @@ function initMap() {
     .setView(cfg.INITIAL_CENTER || [33.6, 133.5], cfg.INITIAL_ZOOM || 8.5);
   window.map = map; // E2Eテスト/デバッグ用に公開
   L.control.zoom({ position: 'bottomright' }).addTo(map);
-  L.tileLayer(
+  tileLayer = L.tileLayer(
     (cfg.GSI_TILES && cfg.GSI_TILES.pale) ||
     'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
     { attribution: '&copy; 国土地理院', maxZoom: 18 }
@@ -477,6 +434,9 @@ function initMap() {
   inundationLayer.addTo(map); // P1-1
   prefBoundsLayer.addTo(map); // P1-4
   riverLayer.addTo(map); // P2-1
+  michinoekiLayer.addTo(map); // P2-2
+  outageLayer.addTo(map); // P2-3
+  marineRouteLayer.addTo(map); // P1-3
   // 大量マーカー用 canvas レンダラー（避難所/津波避難施設）
   shelterCanvas = L.canvas({ pane: 'markerPane' });
   towerCanvas = L.canvas({ pane: 'markerPane' });
@@ -504,6 +464,16 @@ function initMap() {
   renderIncidentMarkers();
 }
 
+/** R10: 地理院タイル切替（淡色/標準/写真） */
+function setTileStyle(key) {
+  const tiles = cfg.GSI_TILES || {};
+  const url = tiles[key];
+  if (!url || !map) return;
+  if (tileLayer) map.removeLayer(tileLayer);
+  tileLayer = L.tileLayer(url, { attribution: '&copy; 国土地理院', maxZoom: 18 }).addTo(map);
+  document.querySelectorAll('.tile-btn').forEach(b => b.classList.toggle('active', b.dataset.tile === key));
+}
+
 // ═══════════════════════════════════════════════
 //  P0-6: FDMAサマリーパネル
 // ═══════════════════════════════════════════════
@@ -525,8 +495,8 @@ function renderFdmaPanel() {
   let prefHtml = '';
   for (const p of fdma.prefectures || []) {
     prefHtml += `<div class="fdma-pref-row">
-      <span><b>${p.name}</b></span>
-      <span>死者${p.dead} 重傷${p.injuredHeavy} 全壊${p.collapsed}</span>
+      <span><b>${escapeHtml(p.name)}</b></span>
+      <span>死者${escapeHtml(p.dead)} 重傷${escapeHtml(p.injuredHeavy)} 全壊${escapeHtml(p.collapsed)}</span>
     </div>`;
   }
   document.getElementById('fdmaPref').innerHTML = prefHtml;
@@ -552,8 +522,8 @@ function renderIsoPanel() {
   let prefHtml = '';
   for (const p of stats) {
     prefHtml += `<div class="fdma-pref-row">
-      <span><b>${p.pref}</b>${p.rankNote ? `<br><small style="color:#999;">${p.rankNote}</small>` : ''}</span>
-      <span>計${p.total}（農${p.agricultural}・漁${p.fishery}）</span>
+      <span><b>${escapeHtml(p.pref)}</b>${p.rankNote ? `<br><small style="color:#999;">${escapeHtml(p.rankNote)}</small>` : ''}</span>
+      <span>計${escapeHtml(p.total)}（農${escapeHtml(p.agricultural)}・漁${escapeHtml(p.fishery)}）</span>
     </div>`;
   }
   document.getElementById('isoPref').innerHTML = prefHtml;
@@ -593,11 +563,11 @@ function renderSupportMarkers() {
     });
     const fl = f === 'active' ? '🟢 利用可' : f === 'warning' ? '🟡 要確認' : '⚫ 経過';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
-      <strong>${item.name}</strong><br><span style="color:#666;">[${item.muni}]</span><br>
+      <strong>${escapeHtml(item.name)}</strong><br><span style="color:#666;">[${escapeHtml(item.muni)}]</span><br>
       状態: <strong>${fl}</strong>
-      ${item.capacity ? `<br>収容: ${item.people}/${item.capacity}人` : ''}
-      ${item.tel ? `<br>📞 ${item.tel}` : ''}
-      <br>${item.detail || ''}
+      ${item.capacity ? `<br>収容: ${escapeHtml(item.people)}/${escapeHtml(item.capacity)}人` : ''}
+      ${item.tel ? `<br>📞 ${escapeHtml(item.tel)}` : ''}
+      <br>${escapeHtml(item.detail)}
       <br><small style="color:#999;">更新: ${new Date(item.asOf).toLocaleString('ja-JP')}</small>
     </div>`;
     L.marker([item.lat, item.lon], { icon }).bindPopup(popup).addTo(markersLayer);
@@ -622,12 +592,12 @@ function renderIncidentMarkers() {
   markersLayer.clearLayers();
   if (currentMode !== 'incidents') return;
   const items = window.INCIDENTS_DATA || [];
-  const colorMap = { rescue:'#dc2626', road:'#f97316', building:'#78350f', landslide:'#854d0e', fire:'#ef4444', water:'#2563eb' };
-  const symbolMap = { rescue:'🚨', road:'⛔', building:'🏚️', landslide:'⛰️', fire:'🔥', water:'💧' };
+  const consts = window.__constants || {};
   items.forEach(item => {
     if (currentIncidentType !== 'all' && item.type !== currentIncidentType) return;
-    const color = colorMap[item.type] || '#ef4444';
-    const symbol = symbolMap[item.type] || '⚠️';
+    const meta = consts.incidentMeta ? consts.incidentMeta(item.type) : {};
+    const color = meta.color || '#ef4444';
+    const symbol = meta.symbol || '⚠️';
     const badge = item.cls === 'official'
       ? '<span style="background:#1e40af;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.75rem;white-space:nowrap;">公的情報</span>'
       : item.cls === 'media'
@@ -638,12 +608,12 @@ function renderIncidentMarkers() {
       html: `<div class="incident-pin" style="background:${color};">${symbol}</div>`,
       iconSize: [28, 28], iconAnchor: [14, 14]
     });
-    const sourceLink = item.url ? `<a href="${item.url}" target="_blank" rel="noopener" style="color:#2563eb;">${item.src}</a>` : item.src;
+    const sourceLink = item.url ? `<a href="${safeUrl(item.url)}" target="_blank" rel="noopener" style="color:#2563eb;">${escapeHtml(item.src)}</a>` : escapeHtml(item.src);
     const locPrec = item.loc_precision === 'approx' ? '📍 位置は市町村単位' : '📍 ピンポイント';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
       <div style="margin-bottom:4px;">${badge}</div>
-      <strong style="font-size:1rem;color:#111;">${item.title}</strong>
-      <p style="margin:4px 0;color:#333;">${item.detail}</p>
+      <strong style="font-size:1rem;color:#111;">${escapeHtml(item.title)}</strong>
+      <p style="margin:4px 0;color:#333;">${escapeHtml(item.detail)}</p>
       <div style="font-size:0.8rem;color:#666;margin-top:6px;">
         出所: ${sourceLink}<br>${locPrec}<br>
         確認: ${new Date(item.time).toLocaleString('ja-JP')}
@@ -681,8 +651,8 @@ function renderFacilitiesMarkers() {
     });
     const erLabel = h.er === 'open' ? '🟢 受入可' : h.er === 'limited' ? '🟡 制限あり' : '🔴 受入停止';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
-      <strong>${h.name}</strong><br><span style="color:#666;">[${h.muni}]</span><br>
-      ${h.type}<br>🚑 ${erLabel}<br>📞 ${h.tel}
+      <strong>${escapeHtml(h.name)}</strong><br><span style="color:#666;">[${escapeHtml(h.muni)}]</span><br>
+      ${escapeHtml(h.type)}<br>🚑 ${erLabel}<br>📞 ${escapeHtml(h.tel)}
       <br><small style="color:#999;">更新: ${new Date(h.asOf).toLocaleString('ja-JP')}</small>
     </div>`;
     L.marker([h.lat, h.lon], { icon }).bindPopup(popup).addTo(markersLayer);
@@ -702,8 +672,8 @@ function renderFacilitiesMarkers() {
     });
     cm._isDensity = true;
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
-      <strong>${s.name}</strong><br><span style="color:#666;">[${s.muni}・${s.pref}]</span><br>
-      📍 ${s.address || '住所情報なし'}<br>
+      <strong>${escapeHtml(s.name)}</strong><br><span style="color:#666;">[${escapeHtml(s.muni)}・${escapeHtml(s.pref)}]</span><br>
+      📍 ${escapeHtml(s.address) || '住所情報なし'}<br>
       <small style="color:#999;">指定避難所（国土地理院データ）</small>
     </div>`;
     cm.bindPopup(popup);
@@ -721,21 +691,56 @@ function renderPortsMarkers() {
   ports.forEach(p => {
     const active = p.active !== false;
     const bg = active ? '#2563eb' : '#6b7280';
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:24px;height:24px;border-radius:50%;background:${bg};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;font-weight:bold;">⚓</div>`,
-      iconSize: [24, 24], iconAnchor: [12, 12]
-    });
+    const icon = makeCircleIcon(bg, '⚓', 24);
     const status = active ? '✅ 稼働可能' : '🔴 使用不可';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
-      <strong>${p.name}</strong><br>
-      <span style="color:#666;">[${p.pref}]</span><br>
+      <strong>${escapeHtml(p.name)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(p.pref)}]</span><br>
       ${status}<br>
-      水深: ${p.depth}m<br>
-      ${p.role || ''}<br>
-      ${p.berth ? '岸壁: ' + p.berth : ''}
+      水深: ${escapeHtml(p.depth)}m<br>
+      ${escapeHtml(p.role)}<br>
+      ${p.berth ? '岸壁: ' + escapeHtml(p.berth) : ''}
     </div>`;
     L.marker([p.lat, p.lon], { icon }).bindPopup(popup).addTo(portsLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P1-3: 海上輸送ルートライン
+// ═══════════════════════════════════════════════
+function renderMarineRoutes() {
+  marineRouteLayer.clearLayers();
+  const routes = window.MARINE_ROUTES || [];
+  routes.forEach(r => {
+    const pts = r.points || [];
+    if (pts.length < 2) return;
+    const line = L.polyline(pts, {
+      color: '#1d4ed8',
+      weight: 2.5,
+      opacity: 0.7,
+      dashArray: '8 6',
+    });
+    // ルート中央にラベル
+    const mid = pts.length === 2
+      ? [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2]
+      : pts[Math.floor(pts.length / 2)];
+    const label = L.marker(mid, {
+      icon: L.divIcon({
+        className: '',
+        html: `<div style="background:rgba(29,78,216,.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);">🚢 ${escapeHtml(r.name)}</div>`,
+        iconSize: null,
+      }),
+      interactive: false,
+    });
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>🚢 ${escapeHtml(r.name)}</strong><br>
+      <span style="color:#666;">運航: ${escapeHtml(r.operator)}</span><br>
+      🛟 防災上の役割: ${escapeHtml(r.role)}<br>
+      <small style="color:#999;">※ 災害時は運航状況が変化します。公式サイトで確認してください。</small>
+    </div>`;
+    line.bindPopup(popup);
+    marineRouteLayer.addLayer(line);
+    marineRouteLayer.addLayer(label);
   });
 }
 
@@ -748,30 +753,26 @@ function renderIsolationMarkers() {
   areas.forEach(a => {
     const riskColor = a.status === 'high_risk' ? '#dc2626' :
       a.status === 'medium_risk' ? '#f59e0b' : '#6b7280';
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:28px;height:28px;border-radius:50%;background:${riskColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">⚠️</div>`,
-      iconSize: [28, 28], iconAnchor: [14, 14]
-    });
+    const icon = makeCircleIcon(riskColor, '⚠️', 28);
     // yodolabs 実データ（score/population/elderlyRate）があれば詳細表示
     const riskLbl = a.status === 'high_risk' ? '高' : a.status === 'medium_risk' ? '中' : '低';
     const scoreLine = (typeof a.score === 'number') ? `📊 リスクスコア: ${a.score.toFixed(2)}<br>` : '';
     const popLine = (typeof a.population === 'number')
-      ? `🛑 人口: ${a.population.toLocaleString()}人（65歳以上 ${a.elderlyRate}%）<br>`
-      : `🛑 影響人口: ${a.affectedPop}<br>`;
+      ? `🛑 人口: ${a.population.toLocaleString()}人（65歳以上 ${escapeHtml(a.elderlyRate)}%）<br>`
+      : `🛑 影響人口: ${escapeHtml(a.affectedPop)}<br>`;
     const hospLine = (typeof a.hospitalKm === 'number') ? `🏥 手術可能病院まで: ${a.hospitalKm}km（道路距離）<br>` : '';
-    const srcLine = a.source ? `<small style="color:#999;">出典: ${a.source === 'yodolabs' ? 'yodolabs 孤立リスク研究' : a.source}</small><br>` : '';
-    const locLine = a.locNote ? `<small style="color:#999;">位置: ${a.locNote}</small><br>` : '';
+    const srcLine = a.source ? `<small style="color:#999;">出典: ${escapeHtml(a.source === 'yodolabs' ? 'yodolabs 孤立リスク研究' : a.source)}</small><br>` : '';
+    const locLine = a.locNote ? `<small style="color:#999;">位置: ${escapeHtml(a.locNote)}</small><br>` : '';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:300px;">
-      <strong>${a.areaName}</strong><br>
-      <span style="color:#666;">[${a.muni}・${a.pref}]</span><br>
+      <strong>${escapeHtml(a.areaName)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(a.muni)}・${escapeHtml(a.pref)}]</span><br>
       ⚠️ 孤立リスク: ${riskLbl}<br>
       ${scoreLine}
       ${popLine}
       ${hospLine}
-      🚧 寸断路線: ${a.routeCut}<br>
-      🔄 代替手段: ${a.alternative || '－'}<br>
-      <small style="color:#999;">${a.desc}</small><br>
+      🚧 寸断路線: ${escapeHtml(a.routeCut)}<br>
+      🔄 代替手段: ${escapeHtml(a.alternative) || '－'}<br>
+      <small style="color:#999;">${escapeHtml(a.desc)}</small><br>
       ${locLine}
       ${srcLine}
     </div>`;
@@ -789,17 +790,13 @@ function renderTowerMarkers() {
   towers.forEach(t => {
     if (t.type === 'tower' || t.type === 'building') {
       const isTower = t.type === 'tower';
-      const icon = L.divIcon({
-        className: '',
-        html: `<div style="width:28px;height:28px;border-radius:50%;background:${isTower ? '#059669' : '#1d4ed8'};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;">${isTower ? '🗼' : '🏢'}</div>`,
-        iconSize: [28, 28], iconAnchor: [14, 14]
-      });
+      const icon = makeCircleIcon(isTower ? '#059669' : '#1d4ed8', isTower ? '🗼' : '🏢', 28);
       const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
-        <strong>${t.name}</strong><br>
-        <span style="color:#666;">[${t.muni}・${t.pref}]</span><br>
+        <strong>${escapeHtml(t.name)}</strong><br>
+        <span style="color:#666;">[${escapeHtml(t.muni)}・${escapeHtml(t.pref)}]</span><br>
         ${isTower ? '🗼 津波避難タワー' : '🏢 津波避難ビル'}<br>
-        📍 ${t.address || '住所情報なし'}<br>
-        <small style="color:#999;">${t.note || ''}</small>
+        📍 ${escapeHtml(t.address) || '住所情報なし'}<br>
+        <small style="color:#999;">${escapeHtml(t.note)}</small>
       </div>`;
       L.marker([t.lat, t.lon], { icon }).bindPopup(popup).addTo(towerLayer);
       return;
@@ -815,11 +812,11 @@ function renderTowerMarkers() {
     });
     cm._isDensity = true;
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
-      <strong>${t.name}</strong><br>
-      <span style="color:#666;">[${t.muni}・${t.pref}]</span><br>
+      <strong>${escapeHtml(t.name)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(t.muni)}・${escapeHtml(t.pref)}]</span><br>
       ⛰️ 高台・津波避難場所<br>
-      📍 ${t.address || '住所情報なし'}<br>
-      <small style="color:#999;">${t.note || ''}</small>
+      📍 ${escapeHtml(t.address) || '住所情報なし'}<br>
+      <small style="color:#999;">${escapeHtml(t.note)}</small>
     </div>`;
     cm.bindPopup(popup);
     towerLayer.addLayer(cm);
@@ -939,15 +936,106 @@ function renderRiverMarkers() {
 
     const pct = r.dangerLevel > 0 ? Math.round(r.level / r.dangerLevel * 100) : 0;
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
-      <strong>${r.name}</strong><br>
-      <span style="color:#666;">[${r.pref}] ${r.river}</span><br>
+      <strong>${escapeHtml(r.name)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(r.pref)}] ${escapeHtml(r.river)}</span><br>
       ${isCamera ? '📹 河川カメラ' : '📊 水位観測所'}<br>
-      現在水位: <strong>${r.level}m</strong> / 氾濫危険: ${r.dangerLevel}m (${pct}%)<br>
+      現在水位: <strong>${escapeHtml(r.level)}m</strong> / 氾濫危険: ${escapeHtml(r.dangerLevel)}m (${pct}%)<br>
       <span style="font-weight:bold;color:${bg};">${risk.alert}</span><br>
-      ${r.note || ''}<br>
-      <a href="${r.url}" target="_blank" rel="noopener" style="color:#2563eb;">川の防災情報 ↗</a>
+      ${escapeHtml(r.note)}<br>
+      <a href="${safeUrl(r.url)}" target="_blank" rel="noopener" style="color:#2563eb;">川の防災情報 ↗</a>
     </div>`;
     L.marker([r.lat, r.lon], { icon }).bindPopup(popup).addTo(riverLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P2-2: 道の駅・防災拠点
+// ═══════════════════════════════════════════════
+function renderMichinoekiMarkers() {
+  michinoekiLayer.clearLayers();
+  const stations = window.MICHINOEKI_DATA || [];
+  stations.forEach(s => {
+    // funcInfo=false: 防災機能データ未収集 → 「情報なし」表示（誤導防止）
+    const unknown = s.funcInfo === false;
+    const hasGen = !unknown && !!s.generator, hasStock = !unknown && !!s.stockpile,
+      hasToilet = !unknown && !!s.toilet24h, hasWater = !unknown && !!s.water;
+    const funcCount = [hasGen, hasStock, hasToilet, hasWater].filter(Boolean).length;
+    // 機能数に応じて色変化（未収集/0=灰, 1=黄, 2+=緑）
+    const bg = unknown ? '#6b7280' : funcCount >= 2 ? '#059669' : funcCount === 1 ? '#f59e0b' : '#6b7280';
+    const icon = makeCircleIcon(bg, '道', 26);
+    const funcs = [
+      hasGen ? '🔌 自家発電' : null,
+      hasStock ? '📦 防災備蓄' : null,
+      hasToilet ? '🚻 24時間トイレ' : null,
+      hasWater ? '💧 飲料水' : null,
+    ].filter(Boolean).join('<br>');
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>${escapeHtml(s.name)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(s.pref)}]</span><br>
+      📍 ${escapeHtml(s.address) || '住所情報なし'}<br>
+      ${s.tel ? '📞 ' + escapeHtml(s.tel) + '<br>' : ''}
+      ${unknown ? '🛡️ 防災機能: 情報なし' : funcs ? '🛡️ 防災機能:<br>' + funcs : '🛡️ 防災機能: 情報なし'}
+    </div>`;
+    L.marker([s.lat, s.lon], { icon }).bindPopup(popup).addTo(michinoekiLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  P2-3: 停電エリア（四国電力送配電）
+// ═══════════════════════════════════════════════
+function toggleOutagePanel() {
+  const body = document.getElementById('outageBody');
+  const btn = document.getElementById('outageToggleBtn');
+  const open = body.classList.toggle('open');
+  btn.textContent = open ? '▲' : '▼';
+}
+
+function renderOutagePanel() {
+  const s = window.OUTAGE_SUMMARY;
+  const totalEl = document.getElementById('outageTotal');
+  const prefEl = document.getElementById('outagePref');
+  const timeEl = document.getElementById('outageTime');
+  if (!s || !totalEl) return;
+  const has = (s.total || 0) > 0;
+  totalEl.innerHTML = has
+    ? `<div><div class="num">${Number(s.total).toLocaleString()}</div><div class="lbl">停電軒数</div></div>`
+    : `<div><div class="num" style="color:#059669;">0</div><div class="lbl">停電軒数</div></div>`;
+  prefEl.innerHTML = has
+    ? '<div style="color:#dc2626;font-weight:bold;">⚠️ 停電発生中</div>'
+    : '<div style="color:#059669;">✅ 停電情報はありません</div>';
+  timeEl.textContent = `更新: ${s.updated || '不明'}（四国電力送配電）`;
+}
+
+function renderOutageMarkers() {
+  outageLayer.clearLayers();
+  const outages = window.OUTAGE_DATA || [];
+  outages.forEach(o => {
+    if (!o.lat || !o.lon) return;
+    const isOutage = o.status === 'outage';
+    // 軒数に応じて半径を拡大（v3 と同方式: 円マーカー＋軒数表示）
+    const households = Number(o.households) || 0;
+    const radius = 10 + Math.sqrt(households) * 1.5;
+    const color = isOutage ? '#dc2626' : '#f59e0b';
+    const cm = L.circleMarker([o.lat, o.lon], {
+      radius: Math.min(radius, 30),
+      color: '#fff',
+      weight: 1.5,
+      fillColor: color,
+      fillOpacity: 0.65
+    });
+    const areaName = [o.city, o.area].filter(Boolean).join(' ');
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>${escapeHtml(areaName)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(o.pref)}]</span><br>
+      ${isOutage ? '🔴 停電中' : '🟡 復旧作業中'}<br>
+      🏠 停電軒数: <strong>${Number(o.households || 0).toLocaleString()}</strong>戸<br>
+      ${o.startTime ? '🕐 発生日時: ' + escapeHtml(o.startTime) + '<br>' : ''}
+      ${o.reason ? '⚡ 原因: ' + escapeHtml(o.reason) + '<br>' : ''}
+      ${o.note ? escapeHtml(o.note) + '<br>' : ''}
+      <small style="color:#999;">出典: 四国電力送配電 停電情報</small>
+    </div>`;
+    cm.bindPopup(popup);
+    outageLayer.addLayer(cm);
   });
 }
 
@@ -988,9 +1076,9 @@ function renderQuakeMarkers(quakes) {
     L.circleMarker([q.lat, q.lon], {
       radius, fillColor: color, color: '#fff', weight: 2, fillOpacity: 0.7
     }).bindPopup(`<div style="font-size:0.9rem;">
-      <strong style="color:${color};">震度 ${q.intensity}</strong><br>
-      震源地: ${q.region || q.anm || '-'}<br>
-      M: ${q.mag}<br>深さ: ${q.depth || q.dep || '-'}
+      <strong style="color:${color};">震度 ${escapeHtml(q.intensity)}</strong><br>
+      震源地: ${escapeHtml(q.region || q.anm || '-')}<br>
+      M: ${escapeHtml(q.mag)}<br>深さ: ${escapeHtml(q.depth || q.dep || '-')}
     </div>`).addTo(quakeLayer);
   });
 }
@@ -1084,10 +1172,16 @@ function renderResourceCommon() {
   const res = cfg.RESOURCES || {};
   const el = document.getElementById('resourceCommon');
   if (!el) return;
-  const links = (res.common || []).map(r =>
-    `<div style="margin:3px 0;"><a href="${r.url}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">${r.icon || '🔗'} ${r.label}</a></div>`
+  const linkHtml = (arr) => (arr || []).map(r =>
+    `<div style="margin:3px 0;"><a href="${safeUrl(r.url)}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">${r.icon || '🔗'} ${escapeHtml(r.label)}</a></div>`
   ).join('');
-  el.innerHTML = links;
+  // P2-4: 通信キャリア障害情報セクションを共通リンクの前に表示
+  el.innerHTML = `
+    <div style="border-bottom:1px solid #e5e7eb;margin:6px 0;"><strong>📶 通信・連絡手段</strong></div>
+    ${linkHtml(res.telecom)}
+    <div style="border-bottom:1px solid #e5e7eb;margin:6px 0;"><strong>🏗️ インフラ・交通</strong></div>
+    ${linkHtml(res.common)}
+  `;
 }
 
 function updateResourcePrefs(key) {
@@ -1137,11 +1231,30 @@ async function handleReportSubmit(e) {
     payload.rescuePeople = parseInt(document.getElementById('rescuePeople').value) || 1;
     payload.rescueCondition = document.getElementById('rescueCondition').value;
   }
-  console.log('[REPORT] 投稿:', payload);
-  alert('✅ 投稿を受付けました。審査ののちマップへ反映されます。');
-  closeReportModal();
-  document.getElementById('reportForm').reset();
-  document.getElementById('rescueTriageFields').style.display = 'none';
+  const submitBtn = document.querySelector('#reportForm button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
+  try {
+    const res = await fetch(`${API_BASE}/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(`❌ 送信失敗: ${data.error || res.status}`);
+      return;
+    }
+    alert('✅ 投稿を受付けました。審査ののちマップへ反映されます。');
+    closeReportModal();
+    document.getElementById('reportForm').reset();
+    document.getElementById('rescueTriageFields').style.display = 'none';
+  } catch (err) {
+    // オフライン等（E-5: P3でIndexedDBキュー化）
+    console.warn('[REPORT] 送信失敗:', err);
+    alert('⚠️ 通信に失敗しました。回線確認後、もう一度お試しください。');
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '📤 送信する'; }
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1176,26 +1289,53 @@ function initModData() {
   }
 }
 
+let adminOpening = false; // R11: hashchange→openAdmin 再帰ガード
 function openAdmin() {
-  // 簡易認証
-  const key = prompt('🔐 管理APIキーを入力してください:');
-  if (key !== MOD_AUTH_KEY && key !== null) {
-    alert('認証エラー: キーが無効です');
-    if (key !== null) return openAdmin();
-    return;
-  }
-  if (key === null) return; // キャンセル
+  if (adminOpening) return; // #mod hash 設定による再入防止
+  adminOpening = true;
+  try {
+    // 認証はサーバ側で検証（R1: フロントにキーを持たない）
+    const key = prompt('🔐 管理APIキーを入力してください:');
+    if (key === null) return; // キャンセル
+    adminKey = key.trim();
+    if (!adminKey) { alert('管理キーを入力してください'); return; }
 
-  document.getElementById('map').style.display = 'none';
-  document.getElementById('btnReport').style.display = 'none';
-  document.getElementById('modPanel').style.display = 'block';
-  document.getElementById('fdmaPanel').style.display = 'none';
-  document.getElementById('isoPanel').style.display = 'none';
-  document.getElementById('incidentsChipsBar').style.display = 'none';
-  document.getElementById('supportChipsBar').style.display = 'none';
-  document.getElementById('modBadge').style.display = 'inline';
-  window.location.hash = 'mod';
+    document.getElementById('map').style.display = 'none';
+    document.getElementById('btnReport').style.display = 'none';
+    document.getElementById('modPanel').style.display = 'block';
+    document.getElementById('fdmaPanel').style.display = 'none';
+    document.getElementById('isoPanel').style.display = 'none';
+    document.getElementById('outagePanel').style.display = 'none';
+    document.getElementById('incidentsChipsBar').style.display = 'none';
+    document.getElementById('supportChipsBar').style.display = 'none';
+    document.getElementById('modBadge').style.display = 'inline';
+    if (window.location.hash !== 'mod') window.location.hash = 'mod';
+    fetchReportsFromApi();
+  } finally {
+    adminOpening = false;
+  }
+}
+
+/** 管理APIから投稿一覧を取得。401→認証エラー、それ以外→ダミーフォールバック（開発用） */
+async function fetchReportsFromApi() {
+  try {
+    const res = await fetch(`${API_BASE}/reports`, {
+      headers: adminKey ? { 'Authorization': `Bearer ${adminKey}` } : {},
+    });
+    if (res.status === 401) {
+      alert('認証エラー: 管理キーが無効です');
+      closeAdmin();
+      return false;
+    }
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    pendingReports = Array.isArray(data.reports) ? data.reports : [];
+  } catch (err) {
+    console.warn('[MOD] API取得失敗、ダミーデータを使用:', err);
+    initModData();
+  }
   renderModTable();
+  return true;
 }
 
 function closeAdmin() {
@@ -1204,6 +1344,7 @@ function closeAdmin() {
   document.getElementById('modPanel').style.display = 'none';
   document.getElementById('fdmaPanel').style.display = 'block';
   document.getElementById('isoPanel').style.display = 'block';
+  document.getElementById('outagePanel').style.display = 'block';
   document.getElementById('modBadge').style.display = 'none';
   if (currentMode === 'incidents') document.getElementById('incidentsChipsBar').style.display = 'flex';
   else document.getElementById('supportChipsBar').style.display = 'flex';
@@ -1212,25 +1353,27 @@ function closeAdmin() {
 }
 
 function renderModTable() {
-  const typeLabel = { rescue:'🚨救助', road:'⛔道路', building:'🏚️建物', landslide:'⛰️土砂', fire:'🔥火災', water:'💧断水' };
+  const consts = window.__constants || {};
+  const typeLabel = (type) => (consts.INCIDENT_META && consts.INCIDENT_META[type])
+    ? consts.INCIDENT_META[type].label : type;
   const statusLabel = { pending:'⏳未審査', approved:'✅承認', rejected:'❌却下' };
   const statusClass = { pending:'status-pending', approved:'status-approved', rejected:'status-rejected' };
   let html = '';
   for (const r of pendingReports) {
     html += `<tr>
-      <td>${r.id}</td>
-      <td>${typeLabel[r.type] || r.type}</td>
-      <td>${r.detail.substring(0, 40)}${r.detail.length > 40 ? '...' : ''}</td>
+      <td>${escapeHtml(r.id)}</td>
+      <td>${escapeHtml(typeLabel(r.type))}</td>
+      <td>${escapeHtml(r.detail).substring(0, 40)}${escapeHtml(r.detail).length > 40 ? '...' : ''}</td>
       <td>${r.lat.toFixed(2)}, ${r.lon.toFixed(2)}</td>
       <td>${r.hasPhoto ? '📸有' : '−'}</td>
       <td>${new Date(r.createdAt).toLocaleString('ja-JP')}</td>
-      <td><span class="status-badge ${statusClass[r.status] || 'status-pending'}">${statusLabel[r.status] || r.status}</span>
+      <td><span class="status-badge ${statusClass[r.status] || 'status-pending'}">${escapeHtml(statusLabel[r.status] || r.status)}</span>
           <br><small>score: ${r.score}</small></td>
       <td>
         ${r.status === 'pending' ? `
-          <button class="btn-approve" onclick="modApprove('${r.id}')">✅承認</button>
-          <button class="btn-reject" onclick="modReject('${r.id}')">❌却下</button>
-          <button style="background:#6b7280;color:#fff;padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:0.75rem;margin-top:2px;" onclick="modLocFix('${r.id}')">📍位置修正</button>
+          <button class="btn-approve" data-id="${escapeHtml(r.id)}">✅承認</button>
+          <button class="btn-reject" data-id="${escapeHtml(r.id)}">❌却下</button>
+          <button class="btn-locfix" data-id="${escapeHtml(r.id)}">📍位置修正</button>
         ` : '−'}
       </td>
     </tr>`;
@@ -1238,15 +1381,34 @@ function renderModTable() {
   document.getElementById('modTableBody').innerHTML = html;
 }
 
+/** 管理操作の変更をAPIに反映（ベストエフォート。失敗時はローカルのみ更新継続） */
+async function apiUpdateReport(id, patch) {
+  try {
+    const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminKey}`,
+      },
+      body: JSON.stringify(patch),
+    });
+    if (!res.ok) console.warn('[MOD] 更新APIエラー:', res.status);
+  } catch (err) {
+    console.warn('[MOD] 更新API失敗:', err);
+  }
+}
+
 function modApprove(id) {
   const r = pendingReports.find(x => x.id === id);
   if (r) { r.status = 'approved'; renderModTable(); }
+  apiUpdateReport(id, { status: 'approved' });
 }
 
 function modReject(id) {
   if (!confirm(`投稿 ${id} を却下しますか？`)) return;
   const r = pendingReports.find(x => x.id === id);
   if (r) { r.status = 'rejected'; renderModTable(); }
+  apiUpdateReport(id, { status: 'rejected' });
 }
 
 function modLocFix(id) {
@@ -1259,17 +1421,26 @@ function modLocFix(id) {
   r.lat = parseFloat(newLat) || r.lat;
   r.lon = parseFloat(newLon) || r.lon;
   renderModTable();
+  apiUpdateReport(id, { lat: r.lat, lon: r.lon });
+}
+
+/** CSVセル値のインジェクション防止（先頭が = + - @ の場合 ' を前置） */
+function csvSafe(value) {
+  const s = String(value);
+  return /^[=+\-@]/.test(s) ? `'${s}` : s;
 }
 
 function exportCSV() {
   const headers = ['ID','種別','内容','緯度','経度','写真','投稿日時','ステータス','スコア'];
-  const typeLabel = { rescue:'救助', road:'道路', building:'建物', landslide:'土砂', fire:'火災', water:'断水' };
+  const consts = window.__constants || {};
+  const csvLabel = (type) => (consts.INCIDENT_META && consts.INCIDENT_META[type])
+    ? consts.INCIDENT_META[type].csvLabel : type;
   const rows = pendingReports.map(r => [
-    r.id, typeLabel[r.type] || r.type, `"${r.detail.replace(/"/g,'""')}"`,
+    csvSafe(r.id), csvSafe(csvLabel(r.type)), `"${csvSafe(r.detail).replace(/"/g,'""')}"`,
     r.lat.toFixed(4), r.lon.toFixed(4),
     r.hasPhoto ? '有' : '無',
     new Date(r.createdAt).toISOString(),
-    r.status, r.score
+    csvSafe(r.status), r.score
   ]);
   const bom = '\uFEFF';
   const csv = bom + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -1304,6 +1475,15 @@ window.renderIsolationMarkers = renderIsolationMarkers;
 window.renderTowerMarkers = renderTowerMarkers;
 window.toggleResourcePanel = toggleResourcePanel;
 window.renderRiverMarkers = renderRiverMarkers;
+window.renderMichinoekiMarkers = renderMichinoekiMarkers;
+window.michinoekiLayer = michinoekiLayer; // E2Eテスト用
+window.renderOutageMarkers = renderOutageMarkers;
+window.renderOutagePanel = renderOutagePanel;
+window.toggleOutagePanel = toggleOutagePanel;
+window.outageLayer = outageLayer; // E2Eテスト用
+window.renderMarineRoutes = renderMarineRoutes;
+window.marineRouteLayer = marineRouteLayer; // E2Eテスト用
+window.setTileStyle = setTileStyle;
 </script>
 </body>
 </html>

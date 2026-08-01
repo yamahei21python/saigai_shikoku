@@ -12,6 +12,7 @@
  */
 
 import { parseJMAQuake } from '../src/logic/parser.js';
+import { SIKOKU_BOUNDS } from '../src/logic/bounds.js';
 
 // ─── 定数 ───────────────────────────────────────────────────
 const VALID_TYPES = ['rescue', 'road', 'building', 'landslide', 'fire', 'water'];
@@ -181,8 +182,12 @@ async function serveStatic(request, url, env) {
 function validateReport(body) {
   const errors = [];
   if (!body || typeof body !== 'object') return { valid: false, errors: ['body欠如'] };
-  if (typeof body.lat !== 'number' || body.lat < 32 || body.lat > 35) errors.push('lat不正（四国範囲: 32-35）');
-  if (typeof body.lon !== 'number' || body.lon < 131 || body.lon > 136) errors.push('lon不正（四国範囲: 131-136）');
+  if (typeof body.lat !== 'number' || body.lat < SIKOKU_BOUNDS.latMin || body.lat > SIKOKU_BOUNDS.latMax) {
+    errors.push(`lat不正（四国範囲: ${SIKOKU_BOUNDS.latMin}-${SIKOKU_BOUNDS.latMax}）`);
+  }
+  if (typeof body.lon !== 'number' || body.lon < SIKOKU_BOUNDS.lonMin || body.lon > SIKOKU_BOUNDS.lonMax) {
+    errors.push(`lon不正（四国範囲: ${SIKOKU_BOUNDS.lonMin}-${SIKOKU_BOUNDS.lonMax}）`);
+  }
   if (!body.type || !VALID_TYPES.includes(body.type)) errors.push('type不正（許可: ' + VALID_TYPES.join(', ') + '）');
   if (!body.detail || body.detail.length < 8) errors.push('detail不足（8文字以上）');
   return { valid: errors.length === 0, errors };
@@ -190,6 +195,8 @@ function validateReport(body) {
 
 function checkAdminAuth(request, env) {
   const authHeader = request.headers.get('Authorization');
+  // ⚠️ 本番運用時は env.MOD_AUTH_KEY を secret で必ず設定すること
+  // （下記フォールバックは開発用。wrangler.toml からは平文を削除済み）
   const expected = env.MOD_AUTH_KEY || 'shikoku-quake-secret-key-2026';
   if (authHeader !== `Bearer ${expected}`) {
     return jsonResponse({ error: '認証エラー' }, 401);

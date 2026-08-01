@@ -1,8 +1,4 @@
-// 四国範囲
-const SIKOKU_DEFAULT = {
-  latMin: 32.5, latMax: 34.5,
-  lonMin: 132.0, lonMax: 135.0
-};
+import { SIKOKU_BOUNDS as SIKOKU_DEFAULT } from './bounds.js';
 
 // NGワードリスト
 const NG_WORDS = ['www.', 'http://', 'https://', '.com', '.net', '限定', '今だけ'];

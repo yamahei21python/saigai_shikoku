@@ -1,3 +1,5 @@
+import { haversineKm } from './geo.js';
+
 /**
  * 生活支援情報の鮮度判定
  * @param {string} updatedAt - ISO 8601 更新日時
@@ -12,19 +14,6 @@ export function getSupportStatus(updatedAt, status, now = new Date()) {
   if (diffHours < 6) return 'active';    // SUP-01
   if (diffHours < 24) return 'warning';  // SUP-02
   return 'expired';                      // SUP-03
-}
-
-/**
- * Haversine公式による距離計算
- */
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2
-    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
-    * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const DEFAULT_LOC = { lat: 34.3, lon: 134.0 }; // 高松市

@@ -1,3 +1,5 @@
+import { SIKOKU_BOUNDS as SIKOKU } from './bounds.js';
+
 /**
  * 消防庁被害報告PDFテキストをパース
  * @param {string} text
@@ -36,7 +38,6 @@ export function parseFDMA(text) {
  * @returns {Object|null}
  */
 export function parseJMAQuake(quake) {
-  const SIKOKU = { latMin: 32.5, latMax: 34.5, lonMin: 132.0, lonMax: 135.0 };
   const { lat, lon } = quake;
   if (lat < SIKOKU.latMin || lat > SIKOKU.latMax || lon < SIKOKU.lonMin || lon > SIKOKU.lonMax) {
     return null; // 四国外
