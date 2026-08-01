@@ -1,7 +1,7 @@
 // 停電情報（四国電力送配電）
 // 出典: 四国電力送配電 停電地図 topoJSON (teidenchizushikoku.com)
 // 生成: tools/fetch_teiden.py（10分間隔リロード対象）
-// 取得時刻: 2026-08-01 19:22
+// 取得時刻: 2026-08-01 20:43
 window.OUTAGE_DATA = [
   {
     "id": "out-26f4af0b",
@@ -14,7 +14,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
     "id": "out-e273cb55",
@@ -27,7 +27,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
     "id": "out-4736b656",
@@ -40,7 +40,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
     "id": "out-5c3de026",
@@ -53,7 +53,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
     "id": "out-f1c1a2e7",
@@ -66,7 +66,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
     "id": "out-266ea26b",
@@ -79,7 +79,7 @@ window.OUTAGE_DATA = [
     "startTime": "2026/08/01 18:29:57",
     "status": "outage",
     "reason": "調査中",
-    "note": "現在、停電範囲の縮小作業に着手しております。"
+    "note": "現在、停電地域において故障箇所と原因を特定中です。"
   }
 ];
-window.OUTAGE_SUMMARY = {"total": 441, "updated": "2026-08-01 19:22"};
+window.OUTAGE_SUMMARY = {"total": 441, "updated": "2026-08-01 20:43"};
