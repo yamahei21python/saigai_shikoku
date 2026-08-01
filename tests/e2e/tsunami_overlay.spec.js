@@ -20,12 +20,11 @@ test.describe('P1-1: 津波浸水想定オーバーレイ', () => {
     await expect(legend).toBeVisible();
     await expect(legend).toContainText('想定浸水深');
 
-    // ポリゴン描画（SVG path または canvas に反映）
+    // ポリゴン描画（fill属性が色 = 津波レイヤー。県境は fill=none）
     const polyCount = await page.evaluate(() => {
-      const map = document.querySelector('#map');
-      const paths = map.querySelectorAll('path.leaflet-interactive').length;
-      const canvases = map.querySelectorAll('canvas').length;
-      return { paths, canvases };
+      const paths = Array.from(document.querySelectorAll('#map path.leaflet-interactive'))
+        .filter(p => p.getAttribute('fill') && p.getAttribute('fill') !== 'none').length;
+      return { paths };
     });
     // zoom 9 初期表示では E-1 制御で非表示になる場合があるため、
     // zoom を上げてから再確認
@@ -36,7 +35,8 @@ test.describe('P1-1: 津波浸水想定オーバーレイ', () => {
       await page.waitForTimeout(800);
     }
     const after = await page.evaluate(() => {
-      return document.querySelectorAll('#map path.leaflet-interactive').length;
+      return Array.from(document.querySelectorAll('#map path.leaflet-interactive'))
+        .filter(p => p.getAttribute('fill') && p.getAttribute('fill') !== 'none').length;
     });
     expect(after).toBeGreaterThan(0);
   });
@@ -53,8 +53,10 @@ test.describe('P1-1: 津波浸水想定オーバーレイ', () => {
     await page.waitForTimeout(500);
     await expect(page.locator('#tsunamiLegend')).toHaveCount(0);
 
+    // 津波ポリゴン（fill属性が色 = 津波レイヤー）が消えていること
     const pathCount = await page.evaluate(() =>
-      document.querySelectorAll('#map path.leaflet-interactive').length
+      Array.from(document.querySelectorAll('#map path.leaflet-interactive'))
+        .filter(p => p.getAttribute('fill') && p.getAttribute('fill') !== 'none').length
     );
     expect(pathCount).toBe(0);
   });
@@ -68,9 +70,10 @@ test.describe('P1-1: 津波浸水想定オーバーレイ', () => {
     await page.evaluate(() => window.map.setZoom(11));
     await page.waitForTimeout(800);
 
-    // 最初のポリゴンをクリックしてポップアップ確認
+    // 最初の津波ポリゴン（fill属性が色のpath）をクリックしてポップアップ確認
     const clicked = await page.evaluate(() => {
-      const path = document.querySelector('#map path.leaflet-interactive');
+      const path = Array.from(document.querySelectorAll('#map path.leaflet-interactive'))
+        .find(p => p.getAttribute('fill') && p.getAttribute('fill') !== 'none');
       if (!path) return false;
       path.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       return true;

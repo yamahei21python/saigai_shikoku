@@ -188,6 +188,7 @@
         <button onclick="changeRegion('ehime')">愛媛</button>
         <button onclick="changeRegion('kochi')">高知</button>
       </div>
+      <button id="btnResources" onclick="toggleResourcePanel()" style="background:#059669;border:none;color:#fff;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:bold;">🔗 関連リンク</button>
     </div>
     <!-- P1-1: 津波浸水想定オーバーレイ切替 -->
     <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;flex-wrap:wrap;">
@@ -197,6 +198,18 @@
       </label>
     </div>
   </header>
+
+  <!-- P1-5: 関連リソースパネル -->
+  <div id="resourcePanel" style="display:none;position:absolute;top:110px;right:10px;z-index:600;background:rgba(255,255,255,.97);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);padding:10px 12px;font-size:0.8rem;max-width:300px;max-height:70vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <strong>🔗 関連リンク</strong>
+      <button onclick="toggleResourcePanel()" style="background:none;border:none;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="resourcePrefs"></div>
+    <div style="border-top:1px solid #e5e7eb;margin:6px 0;padding-top:6px;"><strong>共通</strong></div>
+    <div id="resourceCommon"></div>
+    <small style="color:#999;">※ 公式サイトへの外部リンクです</small>
+  </div>
 
   <!-- 被害情報 種別フィルターチップ -->
   <div id="incidentsChipsBar" class="chips-bar">
@@ -336,13 +349,16 @@
 <script src="./data/isolation.js"></script>
 <script src="./data/tsunami_towers.js"></script>
 <script src="./data/tsunami_inundation.js"></script>
+<script src="./data/river_cameras.js"></script>
 
 <!-- support.js + parser.js (TDD検証済み) -->
 <script type="module">
   import { getSupportStatus } from './src/logic/support.js';
   import { parseJMAQuake } from './src/logic/parser.js';
+  import { calcRiverRisk } from './src/logic/river.js';
   window.__support = { getSupportStatus };
   window.__parser = { parseJMAQuake };
+  window.__river = { calcRiverRisk };
 </script>
 
 <script>
@@ -359,6 +375,8 @@ let portsLayer = L.layerGroup(); // P1-3: 港湾
 let isolationLayer = L.layerGroup(); // P1: 孤立リスク
 let towerLayer = L.layerGroup(); // P1-2: 避難タワー
 let inundationLayer = L.layerGroup(); // P1-1: 津波浸水想定オーバーレイ
+let prefBoundsLayer = L.layerGroup(); // P1-4: 県境表示
+let riverLayer = L.layerGroup(); // P2-1: 河川カメラ・水位計
 let isFdmaOpen = false;
 const cfg = window.CONFIG || {};
 
@@ -384,6 +402,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderIsolationMarkers(); // P1
   renderTowerMarkers(); // P1-2
   renderTsunamiOverlay(); // P1-1（チェック状態に応じて表示）
+  renderPrefBounds(); // P1-4: 県境
+  renderResourcePanel(); // P1-5: 関連リンク
+  renderRiverMarkers(); // P2-1: 河川カメラ・水位計
   fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
   setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
 
@@ -424,6 +445,8 @@ function initMap() {
   isolationLayer.addTo(map); // P1
   towerLayer.addTo(map); // P1-2
   inundationLayer.addTo(map); // P1-1
+  prefBoundsLayer.addTo(map); // P1-4
+  riverLayer.addTo(map); // P2-1
   // E-1: zoom < 10 では津波浸水想定を非表示（メモリ節約）
   map.on('zoomend', () => {
     if (tsunamiOverlayShown && map.getZoom() < 10 && tsunamiOverlayLayer) {
@@ -778,6 +801,42 @@ function hideTsunamiLegend() {
 }
 
 // ═══════════════════════════════════════════════
+//  P2-1: 河川カメラ・水位観測所
+// ═══════════════════════════════════════════════
+function renderRiverMarkers() {
+  riverLayer.clearLayers();
+  const rivers = window.RIVER_CAMERAS || [];
+  const parser = window.__parser;
+  rivers.forEach(r => {
+    // 危険度判定（river.js ロジックは module 経由で利用）
+    const risk = window.__river && window.__river.calcRiverRisk
+      ? window.__river.calcRiverRisk({ currentLevel: r.level, warningLevel: r.warningLevel, dangerLevel: r.dangerLevel })
+      : { level: 'error', alert: '⚠️' };
+
+    const isCamera = r.type === 'camera';
+    const bg = risk.level === 'critical' ? '#dc2626' : risk.level === 'warning' ? '#f59e0b' : '#2563eb';
+    const iconHtml = isCamera ? '📹' : '📊';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:26px;height:26px;border-radius:50%;background:${bg};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,.3);">${iconHtml}</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
+    });
+
+    const pct = r.dangerLevel > 0 ? Math.round(r.level / r.dangerLevel * 100) : 0;
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>${r.name}</strong><br>
+      <span style="color:#666;">[${r.pref}] ${r.river}</span><br>
+      ${isCamera ? '📹 河川カメラ' : '📊 水位観測所'}<br>
+      現在水位: <strong>${r.level}m</strong> / 氾濫危険: ${r.dangerLevel}m (${pct}%)<br>
+      <span style="font-weight:bold;color:${bg};">${risk.alert}</span><br>
+      ${r.note || ''}<br>
+      <a href="${r.url}" target="_blank" rel="noopener" style="color:#2563eb;">川の防災情報 ↗</a>
+    </div>`;
+    L.marker([r.lat, r.lon], { icon }).bindPopup(popup).addTo(riverLayer);
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  P0-2: 気象庁地震リアルタイム取得
 // ═══════════════════════════════════════════════
 async function fetchJMAQuakeLive() {
@@ -841,6 +900,95 @@ function changeRegion(key) {
   document.querySelectorAll('#regionTabs button').forEach(b => b.classList.remove('active'));
   const btn = document.querySelector(`#regionTabs button[onclick*="'${key}'"]`);
   if (btn) btn.classList.add('active');
+  highlightRegionBounds(key); // P1-4: 選択県を強調
+  updateResourcePrefs(key); // P1-5: 県別ポータル切替
+}
+
+// ═══════════════════════════════════════════════
+//  P1-4: 県境表示（簡略矩形）
+// ═══════════════════════════════════════════════
+let currentRegionKey = 'all';
+
+function renderPrefBounds() {
+  prefBoundsLayer.clearLayers();
+  const bounds = cfg.PREF_BOUNDS || {};
+  const regionNames = cfg.REGIONS || {};
+  for (const [key, bbox] of Object.entries(bounds)) {
+    const r = L.rectangle(bbox, {
+      color: key === currentRegionKey ? '#059669' : '#6b7280',
+      weight: key === currentRegionKey ? 2 : 1,
+      opacity: 0.6,
+      fill: false,
+      dashArray: '5 5',
+    }).addTo(prefBoundsLayer);
+    const name = (regionNames[key] && regionNames[key].name) || key;
+    r.bindTooltip(name, { sticky: true, direction: 'top' });
+  }
+}
+
+function highlightRegionBounds(key) {
+  currentRegionKey = key;
+  prefBoundsLayer.clearLayers();
+  const bounds = cfg.PREF_BOUNDS || {};
+  const regionNames = cfg.REGIONS || {};
+  for (const [k, bbox] of Object.entries(bounds)) {
+    const active = k === key;
+    const r = L.rectangle(bbox, {
+      color: active ? '#059669' : '#6b7280',
+      weight: active ? 2.5 : 1,
+      opacity: active ? 0.9 : 0.5,
+      fill: active,
+      fillColor: '#059669',
+      fillOpacity: 0.06,
+      dashArray: '5 5',
+    }).addTo(prefBoundsLayer);
+    const name = (regionNames[k] && regionNames[k].name) || k;
+    r.bindTooltip(name, { sticky: true, direction: 'top' });
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  P1-5: 関連リソースリンクパネル
+// ═══════════════════════════════════════════════
+function toggleResourcePanel() {
+  const panel = document.getElementById('resourcePanel');
+  const show = panel.style.display === 'none';
+  panel.style.display = show ? 'block' : 'none';
+  if (show) {
+    updateResourcePrefs(currentRegionKey);
+    renderResourceCommon();
+  }
+}
+
+function renderResourcePanel() {
+  renderResourceCommon();
+  updateResourcePrefs(currentRegionKey);
+}
+
+function renderResourceCommon() {
+  const res = cfg.RESOURCES || {};
+  const el = document.getElementById('resourceCommon');
+  if (!el) return;
+  const links = (res.common || []).map(r =>
+    `<div style="margin:3px 0;"><a href="${r.url}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">${r.icon || '🔗'} ${r.label}</a></div>`
+  ).join('');
+  el.innerHTML = links;
+}
+
+function updateResourcePrefs(key) {
+  const res = cfg.RESOURCES || {};
+  const prefs = res.prefs || {};
+  const el = document.getElementById('resourcePrefs');
+  if (!el) return;
+  const items = Object.entries(prefs).map(([k, p]) => {
+    const active = k === key;
+    return `<div style="margin:4px 0;${active ? 'background:#ecfdf5;border-radius:4px;padding:2px 4px;' : ''}">
+      <strong>${p.name}</strong><br>
+      <a href="${p.url}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;font-size:0.78rem;">🏛️ ${p.portal}</a><br>
+      <a href="${p.police}" target="_blank" rel="noopener" style="color:#6b7280;text-decoration:none;font-size:0.75rem;">👮 警察・交通規制</a>
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div style="border-bottom:1px solid #e5e7eb;margin-bottom:6px;"><strong>各県</strong></div>${items}`;
 }
 
 // ═══════════════════════════════════════════════
@@ -1039,6 +1187,8 @@ window.renderQuakeMarkers = renderQuakeMarkers;
 window.renderPortsMarkers = renderPortsMarkers;
 window.renderIsolationMarkers = renderIsolationMarkers;
 window.renderTowerMarkers = renderTowerMarkers;
+window.toggleResourcePanel = toggleResourcePanel;
+window.renderRiverMarkers = renderRiverMarkers;
 </script>
 </body>
 </html>
