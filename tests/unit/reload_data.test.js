@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '../..');
 
 // index.html の DYNAMIC_DATA_FILES と同じリスト（P0-10 リロード対象）
+// ※ index.html に追加・削除するときは必ずここも同期すること
 const RELOAD_TARGETS = [
   'data/life_support.js',
   'data/incidents.js',
@@ -15,6 +16,8 @@ const RELOAD_TARGETS = [
   'data/ports.js',
   'data/isolation.js',
   'data/river_cameras.js',
+  'data/michinoeki.js',
+  'data/outage.js',
 ];
 
 // 巨大・静的データ（リロード対象外）
