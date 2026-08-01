@@ -115,6 +115,19 @@
     </div>
   </div>
 
+  <!-- P2-3: 停電情報パネル -->
+  <div id="outagePanel">
+    <div class="fdma-header" onclick="toggleOutagePanel()">
+      <span class="fdma-title">💡 停電情報（四国電力）</span>
+      <button class="fdma-toggle" id="outageToggleBtn">▼</button>
+    </div>
+    <div class="fdma-body" id="outageBody">
+      <div class="fdma-total" id="outageTotal"></div>
+      <div class="fdma-pref" id="outagePref"></div>
+      <div class="fdma-time" id="outageTime"></div>
+    </div>
+  </div>
+
   <!-- P0-9: #mod 管理画面 -->
   <div id="modPanel">
     <div class="mod-header">
@@ -218,6 +231,7 @@
 <script src="./data/tsunami_inundation.js"></script>
 <script src="./data/river_cameras.js"></script>
 <script src="./data/michinoeki.js"></script>
+<script src="./data/outage.js"></script>
 
 <!-- support.js + parser.js (TDD検証済み) -->
 <script type="module">
@@ -251,6 +265,8 @@ let inundationLayer = L.layerGroup(); // P1-1: 津波浸水想定オーバーレ
 let prefBoundsLayer = L.layerGroup(); // P1-4: 県境表示
 let riverLayer = L.layerGroup(); // P2-1: 河川カメラ・水位計
 let michinoekiLayer = L.layerGroup(); // P2-2: 道の駅・防災拠点
+let outageLayer = L.layerGroup(); // P2-3: 停電エリア
+let marineRouteLayer = L.layerGroup(); // P1-3: 海上輸送ルート
 let isFdmaOpen = false;
 const cfg = window.CONFIG || {};
 
@@ -300,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFdmaPanel();
   renderIsoPanel(); // P1-6: 孤立可能性集落 県別統計
   renderPortsMarkers(); // P1-3
+  renderMarineRoutes(); // P1-3: 海上輸送ルート
   renderIsolationMarkers(); // P1
   renderTowerMarkers(); // P1-2
   renderTsunamiOverlay(); // P1-1（チェック状態に応じて表示）
@@ -307,6 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderResourcePanel(); // P1-5: 関連リンク
   renderRiverMarkers(); // P2-1: 河川カメラ・水位計
   renderMichinoekiMarkers(); // P2-2: 道の駅・防災拠点
+  renderOutagePanel(); // P2-3: 停電サマリー
+  renderOutageMarkers(); // P2-3: 停電エリア
   fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
   setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
 
@@ -346,6 +365,7 @@ const DYNAMIC_DATA_FILES = [
   'data/isolation.js',
   'data/river_cameras.js',
   'data/michinoeki.js',
+  'data/outage.js',
 ];
 
 async function reloadDataFiles() {
@@ -369,12 +389,15 @@ function refreshAllLayers() {
   else renderIncidentMarkers();
   renderFacilitiesMarkers();
   renderPortsMarkers();
+  renderMarineRoutes();
   renderIsolationMarkers();
   renderTowerMarkers();
   renderTsunamiOverlay();
   renderPrefBounds();
   renderRiverMarkers();
   renderMichinoekiMarkers();
+  renderOutagePanel();
+  renderOutageMarkers();
   fetchJMAQuakeLive();
 }
 
@@ -412,6 +435,8 @@ function initMap() {
   prefBoundsLayer.addTo(map); // P1-4
   riverLayer.addTo(map); // P2-1
   michinoekiLayer.addTo(map); // P2-2
+  outageLayer.addTo(map); // P2-3
+  marineRouteLayer.addTo(map); // P1-3
   // 大量マーカー用 canvas レンダラー（避難所/津波避難施設）
   shelterCanvas = L.canvas({ pane: 'markerPane' });
   towerCanvas = L.canvas({ pane: 'markerPane' });
@@ -681,6 +706,45 @@ function renderPortsMarkers() {
 }
 
 // ═══════════════════════════════════════════════
+//  P1-3: 海上輸送ルートライン
+// ═══════════════════════════════════════════════
+function renderMarineRoutes() {
+  marineRouteLayer.clearLayers();
+  const routes = window.MARINE_ROUTES || [];
+  routes.forEach(r => {
+    const pts = r.points || [];
+    if (pts.length < 2) return;
+    const line = L.polyline(pts, {
+      color: '#1d4ed8',
+      weight: 2.5,
+      opacity: 0.7,
+      dashArray: '8 6',
+    });
+    // ルート中央にラベル
+    const mid = pts.length === 2
+      ? [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2]
+      : pts[Math.floor(pts.length / 2)];
+    const label = L.marker(mid, {
+      icon: L.divIcon({
+        className: '',
+        html: `<div style="background:rgba(29,78,216,.9);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);">🚢 ${escapeHtml(r.name)}</div>`,
+        iconSize: null,
+      }),
+      interactive: false,
+    });
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>🚢 ${escapeHtml(r.name)}</strong><br>
+      <span style="color:#666;">運航: ${escapeHtml(r.operator)}</span><br>
+      🛟 防災上の役割: ${escapeHtml(r.role)}<br>
+      <small style="color:#999;">※ 災害時は運航状況が変化します。公式サイトで確認してください。</small>
+    </div>`;
+    line.bindPopup(popup);
+    marineRouteLayer.addLayer(line);
+    marineRouteLayer.addLayer(label);
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  P1: 孤立リスクエリア
 // ═══════════════════════════════════════════════
 function renderIsolationMarkers() {
@@ -917,6 +981,65 @@ function renderMichinoekiMarkers() {
 }
 
 // ═══════════════════════════════════════════════
+//  P2-3: 停電エリア（四国電力送配電）
+// ═══════════════════════════════════════════════
+function toggleOutagePanel() {
+  const body = document.getElementById('outageBody');
+  const btn = document.getElementById('outageToggleBtn');
+  const open = body.classList.toggle('open');
+  btn.textContent = open ? '▲' : '▼';
+}
+
+function renderOutagePanel() {
+  const s = window.OUTAGE_SUMMARY;
+  const totalEl = document.getElementById('outageTotal');
+  const prefEl = document.getElementById('outagePref');
+  const timeEl = document.getElementById('outageTime');
+  if (!s || !totalEl) return;
+  const has = (s.total || 0) > 0;
+  totalEl.innerHTML = has
+    ? `<div><div class="num">${Number(s.total).toLocaleString()}</div><div class="lbl">停電軒数</div></div>`
+    : `<div><div class="num" style="color:#059669;">0</div><div class="lbl">停電軒数</div></div>`;
+  prefEl.innerHTML = has
+    ? '<div style="color:#dc2626;font-weight:bold;">⚠️ 停電発生中</div>'
+    : '<div style="color:#059669;">✅ 停電情報はありません</div>';
+  timeEl.textContent = `更新: ${s.updated || '不明'}（四国電力送配電）`;
+}
+
+function renderOutageMarkers() {
+  outageLayer.clearLayers();
+  const outages = window.OUTAGE_DATA || [];
+  outages.forEach(o => {
+    if (!o.lat || !o.lon) return;
+    const isOutage = o.status === 'outage';
+    // 軒数に応じて半径を拡大（v3 と同方式: 円マーカー＋軒数表示）
+    const households = Number(o.households) || 0;
+    const radius = 10 + Math.sqrt(households) * 1.5;
+    const color = isOutage ? '#dc2626' : '#f59e0b';
+    const cm = L.circleMarker([o.lat, o.lon], {
+      radius: Math.min(radius, 30),
+      color: '#fff',
+      weight: 1.5,
+      fillColor: color,
+      fillOpacity: 0.65
+    });
+    const areaName = [o.city, o.area].filter(Boolean).join(' ');
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+      <strong>${escapeHtml(areaName)}</strong><br>
+      <span style="color:#666;">[${escapeHtml(o.pref)}]</span><br>
+      ${isOutage ? '🔴 停電中' : '🟡 復旧作業中'}<br>
+      🏠 停電軒数: <strong>${Number(o.households || 0).toLocaleString()}</strong>戸<br>
+      ${o.startTime ? '🕐 発生日時: ' + escapeHtml(o.startTime) + '<br>' : ''}
+      ${o.reason ? '⚡ 原因: ' + escapeHtml(o.reason) + '<br>' : ''}
+      ${o.note ? escapeHtml(o.note) + '<br>' : ''}
+      <small style="color:#999;">出典: 四国電力送配電 停電情報</small>
+    </div>`;
+    cm.bindPopup(popup);
+    outageLayer.addLayer(cm);
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  P0-2: 気象庁地震リアルタイム取得
 // ═══════════════════════════════════════════════
 async function fetchJMAQuakeLive() {
@@ -1049,10 +1172,16 @@ function renderResourceCommon() {
   const res = cfg.RESOURCES || {};
   const el = document.getElementById('resourceCommon');
   if (!el) return;
-  const links = (res.common || []).map(r =>
-    `<div style="margin:3px 0;"><a href="${r.url}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">${r.icon || '🔗'} ${r.label}</a></div>`
+  const linkHtml = (arr) => (arr || []).map(r =>
+    `<div style="margin:3px 0;"><a href="${safeUrl(r.url)}" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">${r.icon || '🔗'} ${escapeHtml(r.label)}</a></div>`
   ).join('');
-  el.innerHTML = links;
+  // P2-4: 通信キャリア障害情報セクションを共通リンクの前に表示
+  el.innerHTML = `
+    <div style="border-bottom:1px solid #e5e7eb;margin:6px 0;"><strong>📶 通信・連絡手段</strong></div>
+    ${linkHtml(res.telecom)}
+    <div style="border-bottom:1px solid #e5e7eb;margin:6px 0;"><strong>🏗️ インフラ・交通</strong></div>
+    ${linkHtml(res.common)}
+  `;
 }
 
 function updateResourcePrefs(key) {
@@ -1176,6 +1305,7 @@ function openAdmin() {
     document.getElementById('modPanel').style.display = 'block';
     document.getElementById('fdmaPanel').style.display = 'none';
     document.getElementById('isoPanel').style.display = 'none';
+    document.getElementById('outagePanel').style.display = 'none';
     document.getElementById('incidentsChipsBar').style.display = 'none';
     document.getElementById('supportChipsBar').style.display = 'none';
     document.getElementById('modBadge').style.display = 'inline';
@@ -1214,6 +1344,7 @@ function closeAdmin() {
   document.getElementById('modPanel').style.display = 'none';
   document.getElementById('fdmaPanel').style.display = 'block';
   document.getElementById('isoPanel').style.display = 'block';
+  document.getElementById('outagePanel').style.display = 'block';
   document.getElementById('modBadge').style.display = 'none';
   if (currentMode === 'incidents') document.getElementById('incidentsChipsBar').style.display = 'flex';
   else document.getElementById('supportChipsBar').style.display = 'flex';
@@ -1346,6 +1477,12 @@ window.toggleResourcePanel = toggleResourcePanel;
 window.renderRiverMarkers = renderRiverMarkers;
 window.renderMichinoekiMarkers = renderMichinoekiMarkers;
 window.michinoekiLayer = michinoekiLayer; // E2Eテスト用
+window.renderOutageMarkers = renderOutageMarkers;
+window.renderOutagePanel = renderOutagePanel;
+window.toggleOutagePanel = toggleOutagePanel;
+window.outageLayer = outageLayer; // E2Eテスト用
+window.renderMarineRoutes = renderMarineRoutes;
+window.marineRouteLayer = marineRouteLayer; // E2Eテスト用
 window.setTileStyle = setTileStyle;
 </script>
 </body>

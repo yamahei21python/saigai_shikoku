@@ -95,6 +95,19 @@ header .top-row .mod-badge{background:#7c3aed;color:#fff;border-radius:4px;paddi
 #isoPanel .fdma-body{padding:8px 10px;display:none;}
 #isoPanel .fdma-body.open{display:block;}
 
+/* P2-3: 停電情報パネル */
+#outagePanel{
+  position:absolute;top:10px;right:10px;z-index:498;
+  background:rgba(255,255,255,.95);border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:0.8rem;
+  max-width:280px;overflow:hidden;margin-top:170px;
+}
+#outagePanel .fdma-header{background:#b45309;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+#outagePanel .fdma-header .fdma-title{font-weight:bold;font-size:0.85rem;}
+#outagePanel .fdma-header .fdma-toggle{font-size:0.8rem;background:none;border:none;color:#fff;cursor:pointer;}
+#outagePanel .fdma-body{padding:8px 10px;display:none;}
+#outagePanel .fdma-body.open{display:block;}
+
 /* P0-9: #mod 管理画面 */
 #modPanel{
   display:none;flex:1;width:100%;overflow-y:auto;

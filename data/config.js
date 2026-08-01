@@ -32,6 +32,16 @@ window.CONFIG = {
       { label: "NEXCO西日本（四国エリア）", url: "https://www.w-nexco.co.jp/", icon: "🛣️" },
       { label: "JARTIC 道路交通情報", url: "https://www.jartic.or.jp/", icon: "🚗" }
     ],
+    // P2-4: 通信キャリア障害・復旧情報
+    telecom: [
+      { label: "災害用伝言ダイヤル（171）", url: "https://www.ntt-east.co.jp/saigai/171/", icon: "📞" },
+      { label: "web171 災害用伝言板", url: "https://www.web171.jp/", icon: "💬" },
+      { label: "NTTドコモ ネットワーク障害情報", url: "https://www.docomo.ne.jp/info/network/", icon: "📱" },
+      { label: "au（KDDI） ネットワーク障害情報", url: "https://www.au.com/support/info/network/", icon: "📱" },
+      { label: "SoftBank ネットワーク情報・障害", url: "https://www.softbank.jp/mobile/info/network/", icon: "📱" },
+      { label: "楽天モバイル ネットワーク情報", url: "https://network.mobile.rakuten.co.jp/information/", icon: "📱" },
+      { label: "総務省 災害時の通信手段", url: "https://www.soumu.go.jp/menu_seisaku/ictseisaku/net_anzen/bousai/index.html", icon: "🏛️" }
+    ],
     prefs: {
       tokushima: { name: "徳島県", portal: "安心とくしま", url: "https://www.pref.tokushima.lg.jp/anshin/", police: "https://www.police.pref.tokushima.jp/" },
       kagawa:    { name: "香川県", portal: "かがわ防災Webポータル", url: "https://www.bousai-kagawa.jp/", police: "https://www.police.pref.kagawa.jp/" },
