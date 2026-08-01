@@ -82,6 +82,19 @@
   #fdmaPanel .fdma-pref-row{display:flex;justify-content:space-between;padding:2px 0;}
   #fdmaPanel .fdma-time{font-size:0.7rem;color:#999;text-align:right;padding-top:4px;}
 
+  /* P1-6: 孤立可能性集落 県別統計パネル */
+  #isoPanel{
+    position:absolute;top:10px;right:10px;z-index:499;
+    background:rgba(255,255,255,.95);border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:0.8rem;
+    max-width:280px;overflow:hidden;margin-top:88px;
+  }
+  #isoPanel .fdma-header{background:#7c3aed;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  #isoPanel .fdma-header .fdma-title{font-weight:bold;font-size:0.85rem;}
+  #isoPanel .fdma-header .fdma-toggle{font-size:0.8rem;background:none;border:none;color:#fff;cursor:pointer;}
+  #isoPanel .fdma-body{padding:8px 10px;display:none;}
+  #isoPanel .fdma-body.open{display:block;}
+
   /* P0-9: #mod 管理画面 */
   #modPanel{
     display:none;flex:1;width:100%;overflow-y:auto;
@@ -249,6 +262,19 @@
     </div>
   </div>
 
+  <!-- P1-6: 孤立可能性集落 県別統計パネル -->
+  <div id="isoPanel">
+    <div class="fdma-header" onclick="toggleIsoPanel()">
+      <span class="fdma-title">⚠️ 孤立可能性集落（県別）</span>
+      <button class="fdma-toggle" id="isoToggleBtn">▼</button>
+    </div>
+    <div class="fdma-body open" id="isoBody">
+      <div class="fdma-total" id="isoTotal"></div>
+      <div class="fdma-pref" id="isoPref"></div>
+      <div class="fdma-time" id="isoTime">出典: 内閣府 H21 調査（uub.jp 集計）</div>
+    </div>
+  </div>
+
   <!-- P0-9: #mod 管理画面 -->
   <div id="modPanel">
     <div class="mod-header">
@@ -345,6 +371,7 @@
 <script src="./data/incidents.js"></script>
 <script src="./data/fdma_latest.js"></script>
 <script src="./data/facilities.js"></script>
+<script src="./data/shelters.js"></script>
 <script src="./data/ports.js"></script>
 <script src="./data/isolation.js"></script>
 <script src="./data/tsunami_towers.js"></script>
@@ -374,6 +401,8 @@ let quakeLayer = L.layerGroup(); // P0-2: 地震マーカー
 let portsLayer = L.layerGroup(); // P1-3: 港湾
 let isolationLayer = L.layerGroup(); // P1: 孤立リスク
 let towerLayer = L.layerGroup(); // P1-2: 避難タワー
+let shelterCanvas = null; // 避難所 canvas レンダラー（大量表示用）
+let towerCanvas = null; // 津波避難施設 canvas レンダラー
 let inundationLayer = L.layerGroup(); // P1-1: 津波浸水想定オーバーレイ
 let prefBoundsLayer = L.layerGroup(); // P1-4: 県境表示
 let riverLayer = L.layerGroup(); // P2-1: 河川カメラ・水位計
@@ -397,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, cfg.AUTO_RELOAD_INTERVAL_MS || 600000);
 
   renderFdmaPanel();
+  renderIsoPanel(); // P1-6: 孤立可能性集落 県別統計
   initModData();
   renderPortsMarkers(); // P1-3
   renderIsolationMarkers(); // P1
@@ -447,13 +477,29 @@ function initMap() {
   inundationLayer.addTo(map); // P1-1
   prefBoundsLayer.addTo(map); // P1-4
   riverLayer.addTo(map); // P2-1
-  // E-1: zoom < 10 では津波浸水想定を非表示（メモリ節約）
+  // 大量マーカー用 canvas レンダラー（避難所/津波避難施設）
+  shelterCanvas = L.canvas({ pane: 'markerPane' });
+  towerCanvas = L.canvas({ pane: 'markerPane' });
+  // E-2: zoom < 10 では避難所・津波避難施設を非表示（メモリ節約）
+  const SHOW_THRESHOLD = 10;
+  window.applyDensityControl = function () {
+    const z = map.getZoom();
+    [markersLayer, towerLayer].forEach(layerGroup => {
+      layerGroup.eachLayer(l => {
+        if (l._isDensity) {
+          if (z < SHOW_THRESHOLD && map.hasLayer(l)) map.removeLayer(l);
+          else if (z >= SHOW_THRESHOLD && !map.hasLayer(l)) map.addLayer(l);
+        }
+      });
+    });
+  };
   map.on('zoomend', () => {
     if (tsunamiOverlayShown && map.getZoom() < 10 && tsunamiOverlayLayer) {
       inundationLayer.removeLayer(tsunamiOverlayLayer);
     } else if (tsunamiOverlayShown && tsunamiOverlayLayer && !inundationLayer.hasLayer(tsunamiOverlayLayer)) {
       tsunamiOverlayLayer.addTo(inundationLayer);
     }
+    applyDensityControl();
   });
   renderIncidentMarkers();
 }
@@ -490,6 +536,33 @@ function toggleFdmaPanel() {
   isFdmaOpen = !isFdmaOpen;
   document.getElementById('fdmaBody').classList.toggle('open', isFdmaOpen);
   document.getElementById('fdmaToggleBtn').textContent = isFdmaOpen ? '▲' : '▼';
+}
+
+// ═══════════════════════════════════════════════
+//  P1-6: 孤立可能性集落 県別統計パネル
+// ═══════════════════════════════════════════════
+function renderIsoPanel() {
+  const stats = window.ISOLATION_PREF_STATS || [];
+  if (!stats.length) return;
+  const grandTotal = stats.reduce((s, p) => s + (p.total || 0), 0);
+  document.getElementById('isoTotal').innerHTML = `
+    <div><div class="num">${grandTotal.toLocaleString()}</div><div class="lbl">孤立可能性集落（四国）</div></div>
+    <div><div class="num">${stats.length}</div><div class="lbl">対象県</div></div>
+  `;
+  let prefHtml = '';
+  for (const p of stats) {
+    prefHtml += `<div class="fdma-pref-row">
+      <span><b>${p.pref}</b>${p.rankNote ? `<br><small style="color:#999;">${p.rankNote}</small>` : ''}</span>
+      <span>計${p.total}（農${p.agricultural}・漁${p.fishery}）</span>
+    </div>`;
+  }
+  document.getElementById('isoPref').innerHTML = prefHtml;
+}
+
+function toggleIsoPanel() {
+  const body = document.getElementById('isoBody');
+  body.classList.toggle('open', !body.classList.contains('open'));
+  document.getElementById('isoToggleBtn').textContent = body.classList.contains('open') ? '▲' : '▼';
 }
 
 // ═══════════════════════════════════════════════
@@ -615,24 +688,28 @@ function renderFacilitiesMarkers() {
     L.marker([h.lat, h.lon], { icon }).bindPopup(popup).addTo(markersLayer);
   });
 
-  // 避難所マーカー（詳細版）
+  // 避難所マーカー（canvas 大量表示。zoom >= 10 のみ表示）
   const shelters = window.SHELTERS_DATA || [];
+  if (!(currentCategory === 'all' || currentCategory === 'shelter_facility')) return;
   shelters.forEach(s => {
-    if (currentCategory !== 'all' && currentCategory !== 'shelter_facility') return;
-    const statusColor = s.status === 'open' ? '#2563eb' : s.status === 'limited' ? '#f59e0b' : '#6b7280';
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:26px;height:26px;border-radius:50%;background:${statusColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">🏢</div>`,
-      iconSize: [26, 26], iconAnchor: [13, 13]
+    const cm = L.circleMarker([s.lat, s.lon], {
+      renderer: shelterCanvas,
+      radius: 4,
+      color: '#fff',
+      weight: 1,
+      fillColor: '#2563eb',
+      fillOpacity: 0.85
     });
-    const pct = s.capacity > 0 ? Math.round(s.people / s.capacity * 100) : 0;
+    cm._isDensity = true;
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
-      <strong>${s.name}</strong><br><span style="color:#666;">[${s.muni}]</span><br>
-      収容: ${s.people}/${s.capacity}人 (${pct}%)
-      <br><small style="color:#999;">更新: ${new Date(s.asOf).toLocaleString('ja-JP')}</small>
+      <strong>${s.name}</strong><br><span style="color:#666;">[${s.muni}・${s.pref}]</span><br>
+      📍 ${s.address || '住所情報なし'}<br>
+      <small style="color:#999;">指定避難所（国土地理院データ）</small>
     </div>`;
-    L.marker([s.lat, s.lon], { icon }).bindPopup(popup).addTo(markersLayer);
+    cm.bindPopup(popup);
+    markersLayer.addLayer(cm);
   });
+  if (window.applyDensityControl) window.applyDensityControl();
 }
 
 // ═══════════════════════════════════════════════
@@ -676,14 +753,27 @@ function renderIsolationMarkers() {
       html: `<div style="width:28px;height:28px;border-radius:50%;background:${riskColor};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);">⚠️</div>`,
       iconSize: [28, 28], iconAnchor: [14, 14]
     });
+    // yodolabs 実データ（score/population/elderlyRate）があれば詳細表示
+    const riskLbl = a.status === 'high_risk' ? '高' : a.status === 'medium_risk' ? '中' : '低';
+    const scoreLine = (typeof a.score === 'number') ? `📊 リスクスコア: ${a.score.toFixed(2)}<br>` : '';
+    const popLine = (typeof a.population === 'number')
+      ? `🛑 人口: ${a.population.toLocaleString()}人（65歳以上 ${a.elderlyRate}%）<br>`
+      : `🛑 影響人口: ${a.affectedPop}<br>`;
+    const hospLine = (typeof a.hospitalKm === 'number') ? `🏥 手術可能病院まで: ${a.hospitalKm}km（道路距離）<br>` : '';
+    const srcLine = a.source ? `<small style="color:#999;">出典: ${a.source === 'yodolabs' ? 'yodolabs 孤立リスク研究' : a.source}</small><br>` : '';
+    const locLine = a.locNote ? `<small style="color:#999;">位置: ${a.locNote}</small><br>` : '';
     const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:300px;">
       <strong>${a.areaName}</strong><br>
       <span style="color:#666;">[${a.muni}・${a.pref}]</span><br>
-      🔴 孤立リスク: ${a.status === 'high_risk' ? '高' : '中'}<br>
-      🛑 影響人口: ${a.affectedPop}<br>
+      ⚠️ 孤立リスク: ${riskLbl}<br>
+      ${scoreLine}
+      ${popLine}
+      ${hospLine}
       🚧 寸断路線: ${a.routeCut}<br>
       🔄 代替手段: ${a.alternative || '－'}<br>
-      <small style="color:#999;">${a.desc}</small>
+      <small style="color:#999;">${a.desc}</small><br>
+      ${locLine}
+      ${srcLine}
     </div>`;
     L.marker([a.lat, a.lon], { icon }).bindPopup(popup).addTo(isolationLayer);
   });
@@ -695,21 +785,46 @@ function renderIsolationMarkers() {
 function renderTowerMarkers() {
   towerLayer.clearLayers();
   const towers = window.TSUNAMI_TOWERS || [];
+  // タワー/ビル（少数）は divIcon でアイコン表示、高台避難場所（大量）は canvas 円
   towers.forEach(t => {
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:26px;height:26px;border-radius:50%;background:#059669;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;">🏗️</div>`,
-      iconSize: [26, 26], iconAnchor: [13, 13]
+    if (t.type === 'tower' || t.type === 'building') {
+      const isTower = t.type === 'tower';
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="width:28px;height:28px;border-radius:50%;background:${isTower ? '#059669' : '#1d4ed8'};border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;">${isTower ? '🗼' : '🏢'}</div>`,
+        iconSize: [28, 28], iconAnchor: [14, 14]
+      });
+      const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
+        <strong>${t.name}</strong><br>
+        <span style="color:#666;">[${t.muni}・${t.pref}]</span><br>
+        ${isTower ? '🗼 津波避難タワー' : '🏢 津波避難ビル'}<br>
+        📍 ${t.address || '住所情報なし'}<br>
+        <small style="color:#999;">${t.note || ''}</small>
+      </div>`;
+      L.marker([t.lat, t.lon], { icon }).bindPopup(popup).addTo(towerLayer);
+      return;
+    }
+    // 高台・その他避難場所（canvas 円）
+    const cm = L.circleMarker([t.lat, t.lon], {
+      renderer: towerCanvas,
+      radius: 4,
+      color: '#fff',
+      weight: 1,
+      fillColor: '#d97706',
+      fillOpacity: 0.7
     });
-    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+    cm._isDensity = true;
+    const popup = `<div style="font-size:0.85rem;line-height:1.5;max-width:280px;">
       <strong>${t.name}</strong><br>
-      <span style="color:#666;">[${t.pref}]</span><br>
-      収容可能: ${t.capacity}人<br>
-      高さ: ${t.heightM || '－'}m<br>
-      ${t.note || ''}
+      <span style="color:#666;">[${t.muni}・${t.pref}]</span><br>
+      ⛰️ 高台・津波避難場所<br>
+      📍 ${t.address || '住所情報なし'}<br>
+      <small style="color:#999;">${t.note || ''}</small>
     </div>`;
-    L.marker([t.lat, t.lon], { icon }).bindPopup(popup).addTo(towerLayer);
+    cm.bindPopup(popup);
+    towerLayer.addLayer(cm);
   });
+  if (window.applyDensityControl) window.applyDensityControl();
 }
 
 // ═══════════════════════════════════════════════
@@ -1075,7 +1190,7 @@ function openAdmin() {
   document.getElementById('btnReport').style.display = 'none';
   document.getElementById('modPanel').style.display = 'block';
   document.getElementById('fdmaPanel').style.display = 'none';
-  document.getElementById('mainTabs').style.display = 'none';
+  document.getElementById('isoPanel').style.display = 'none';
   document.getElementById('incidentsChipsBar').style.display = 'none';
   document.getElementById('supportChipsBar').style.display = 'none';
   document.getElementById('modBadge').style.display = 'inline';
@@ -1088,7 +1203,7 @@ function closeAdmin() {
   document.getElementById('btnReport').style.display = 'block';
   document.getElementById('modPanel').style.display = 'none';
   document.getElementById('fdmaPanel').style.display = 'block';
-  document.getElementById('mainTabs').style.display = 'flex';
+  document.getElementById('isoPanel').style.display = 'block';
   document.getElementById('modBadge').style.display = 'none';
   if (currentMode === 'incidents') document.getElementById('incidentsChipsBar').style.display = 'flex';
   else document.getElementById('supportChipsBar').style.display = 'flex';

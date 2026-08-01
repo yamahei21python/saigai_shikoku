@@ -53,6 +53,19 @@ test.describe('画面レイアウト & E-4警告表示', () => {
     await expect(page.locator('#fdmaBody')).toBeVisible();
   });
 
+  test('孤立集落パネルが表示され県別統計を含む', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1500);
+    const isoHeader = page.locator('#isoPanel .fdma-header');
+    await expect(isoHeader).toBeVisible();
+    await expect(isoHeader).toContainText('孤立可能性集落');
+
+    // 県別統計が表示される（高知が最大）
+    await expect(page.locator('#isoTotal .num').first()).toHaveText(/2,141/);
+    await expect(page.locator('#isoPref')).toContainText('高知');
+    await expect(page.locator('#isoPref')).toContainText('957');
+  });
+
   test('ページタイトルが正しい', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/四国版 災害情報マップ/);
