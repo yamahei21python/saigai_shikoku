@@ -15,8 +15,8 @@ import { parseJMAQuake } from '../src/logic/parser.js';
 import { SIKOKU_BOUNDS } from '../src/logic/bounds.js';
 
 // ─── 定数 ───────────────────────────────────────────────────
-const VALID_TYPES = ['rescue', 'road', 'building', 'landslide', 'fire', 'water'];
-const CACHE_POLICY = {
+export const VALID_TYPES = ['rescue', 'road', 'building', 'landslide', 'fire', 'water'];
+export const CACHE_POLICY = {
   '/data/incidents.js':     'public, max-age=60, s-maxage=300',
   '/data/config.js':        'public, max-age=60, s-maxage=300',
   '/data/life_support.js':  'public, max-age=60, s-maxage=300',
@@ -179,7 +179,8 @@ async function serveStatic(request, url, env) {
 }
 
 // ─── バリデーション ──────────────────────────────────────
-function validateReport(body) {
+/** 投稿ペイロードのバリデーション（export: テストで実装を直接検証） */
+export function validateReport(body) {
   const errors = [];
   if (!body || typeof body !== 'object') return { valid: false, errors: ['body欠如'] };
   if (typeof body.lat !== 'number' || body.lat < SIKOKU_BOUNDS.latMin || body.lat > SIKOKU_BOUNDS.latMax) {
@@ -193,12 +194,17 @@ function validateReport(body) {
   return { valid: errors.length === 0, errors };
 }
 
-function checkAdminAuth(request, env) {
-  const authHeader = request.headers.get('Authorization');
+/** 認証ヘッダーの検証（export: テストで実装を直接検証） */
+export function isAdminAuthorized(authHeader, envKey) {
   // ⚠️ 本番運用時は env.MOD_AUTH_KEY を secret で必ず設定すること
   // （下記フォールバックは開発用。wrangler.toml からは平文を削除済み）
-  const expected = env.MOD_AUTH_KEY || 'shikoku-quake-secret-key-2026';
-  if (authHeader !== `Bearer ${expected}`) {
+  const expected = envKey || 'shikoku-quake-secret-key-2026';
+  return authHeader === `Bearer ${expected}`;
+}
+
+function checkAdminAuth(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  if (!isAdminAuthorized(authHeader, env.MOD_AUTH_KEY)) {
     return jsonResponse({ error: '認証エラー' }, 401);
   }
   return null;

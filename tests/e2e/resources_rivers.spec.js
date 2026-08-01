@@ -5,7 +5,7 @@ test.describe('P1-4: 県境表示 & 4県切替', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    const kochiBtn = page.locator('#regionTabs button[onclick*="kochi"]');
+    const kochiBtn = page.locator('#regionTabs button[data-action="changeRegion"][data-arg="kochi"]');
     await kochiBtn.click();
     await page.waitForTimeout(1200);
 
@@ -62,7 +62,7 @@ test.describe('P1-5: 関連リソースリンクパネル', () => {
     await page.locator('#btnResources').click();
     await page.waitForTimeout(300);
 
-    await page.locator('#regionTabs button[onclick*="ehime"]').click();
+    await page.locator('#regionTabs button[data-action="changeRegion"][data-arg="ehime"]').click();
     await page.waitForTimeout(500);
 
     const highlighted = await page.evaluate(() => {

@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>四国版 災害情報マップ｜南海トラフ対策</title>
+<!-- P3-1: PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1e3a5f">
+<link rel="icon" href="./icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="stylesheet" href="./lib/leaflet.css">
 <link rel="stylesheet" href="./styles.css">
 </head>
@@ -31,11 +36,11 @@
         <button id="btnAdmin" onclick="openAdmin()" style="background:#7c3aed;">🔐 管理</button>
       </div>
       <div class="tabs" id="regionTabs">
-        <button onclick="changeRegion('all')" class="active">四国全域</button>
-        <button onclick="changeRegion('tokushima')">徳島</button>
-        <button onclick="changeRegion('kagawa')">香川</button>
-        <button onclick="changeRegion('ehime')">愛媛</button>
-        <button onclick="changeRegion('kochi')">高知</button>
+        <button data-action="changeRegion" data-arg="all" onclick="changeRegion('all')" class="active">四国全域</button>
+        <button data-action="changeRegion" data-arg="tokushima" onclick="changeRegion('tokushima')">徳島</button>
+        <button data-action="changeRegion" data-arg="kagawa" onclick="changeRegion('kagawa')">香川</button>
+        <button data-action="changeRegion" data-arg="ehime" onclick="changeRegion('ehime')">愛媛</button>
+        <button data-action="changeRegion" data-arg="kochi" onclick="changeRegion('kochi')">高知</button>
       </div>
       <button id="btnResources" onclick="toggleResourcePanel()" style="background:#059669;border:none;color:#fff;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:bold;">🔗 関連リンク</button>
     </div>
@@ -245,6 +250,7 @@
   window.__constants = { INCIDENT_META, incidentMeta };
 </script>
 
+<script src="./pwa.js"></script>
 <script>
 // ═══════════════════════════════════════════════
 //  グローバル状態
@@ -274,6 +280,7 @@ const cfg = window.CONFIG || {};
 let pendingReports = [];
 let adminKey = null; // セッション内保持（R1: フロントにキーを埋め込まない）
 const API_BASE = '/api'; // デプロイ環境に応じて変更可
+window.API_BASE = API_BASE; // pwa.js（オフラインキュー）から参照
 
 // ═══════════════════════════════════════════════
 //  セキュリティヘルパー（R3: XSS対策）
@@ -1101,7 +1108,7 @@ function changeRegion(key) {
   if (!region || !map) return;
   map.flyTo(region.center, region.zoom, { duration: 1.0 });
   document.querySelectorAll('#regionTabs button').forEach(b => b.classList.remove('active'));
-  const btn = document.querySelector(`#regionTabs button[onclick*="'${key}'"]`);
+  const btn = document.querySelector(`#regionTabs button[data-arg="${key}"]`);
   if (btn) btn.classList.add('active');
   highlightRegionBounds(key); // P1-4: 選択県を強調
   updateResourcePrefs(key); // P1-5: 県別ポータル切替
@@ -1219,6 +1226,9 @@ function toggleRescueTriage(type) {
   document.getElementById('rescueTriageFields').style.display = type === 'rescue' ? 'block' : 'none';
 }
 
+// ═══════════════════════════════════════════════
+//  P0-5: 投稿送信（P3-1: オフライン時は pwa.js のキューへ）
+// ═══════════════════════════════════════════════
 async function handleReportSubmit(e) {
   e.preventDefault();
   const type = document.getElementById('reportType').value;
@@ -1234,11 +1244,7 @@ async function handleReportSubmit(e) {
   const submitBtn = document.querySelector('#reportForm button[type="submit"]');
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
   try {
-    const res = await fetch(`${API_BASE}/reports`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const res = await postReport(payload);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       alert(`❌ 送信失敗: ${data.error || res.status}`);
@@ -1249,9 +1255,18 @@ async function handleReportSubmit(e) {
     document.getElementById('reportForm').reset();
     document.getElementById('rescueTriageFields').style.display = 'none';
   } catch (err) {
-    // オフライン等（E-5: P3でIndexedDBキュー化）
-    console.warn('[REPORT] 送信失敗:', err);
-    alert('⚠️ 通信に失敗しました。回線確認後、もう一度お試しください。');
+    // オフライン・通信失敗時: IndexedDB キューへ保存（P3-1: 復旧後自動再送）
+    console.warn('[REPORT] 送信失敗、オフラインキューへ保存:', err);
+    try {
+      await enqueueReport(payload);
+      alert('📤 通信が回復したら自動送信します（オフライン保存済み）');
+    } catch (qe) {
+      console.error('[REPORT] キュー保存失敗:', qe);
+      alert('⚠️ 通信に失敗しました。回線確認後、もう一度お試しください。');
+    }
+    closeReportModal();
+    document.getElementById('reportForm').reset();
+    document.getElementById('rescueTriageFields').style.display = 'none';
   } finally {
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '📤 送信する'; }
   }
