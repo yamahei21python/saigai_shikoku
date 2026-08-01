@@ -66,6 +66,58 @@ test.describe('画面レイアウト & E-4警告表示', () => {
     await expect(page.locator('#isoPref')).toContainText('957');
   });
 
+  test('P0-10: 10分自動リロードがデータ再取得とレイヤー再構築を行う', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1500);
+
+    // リロード前のデータ件数
+    const before = await page.evaluate(() => ({
+      isolation: window.ISOLATION_RISK_DATA.length,
+      fdma: window.FDMA_LATEST ? window.FDMA_LATEST.reportNo : null,
+    }));
+
+    // reloadDataFiles() を実行（実際のfetch+eval再評価）
+    await page.evaluate(() => window.reloadDataFiles());
+    await page.waitForTimeout(2500);
+
+    // データは再評価後も保持されている（fetch成功・eval成功）
+    const after = await page.evaluate(() => ({
+      isolation: window.ISOLATION_RISK_DATA.length,
+      fdma: window.FDMA_LATEST ? window.FDMA_LATEST.reportNo : null,
+    }));
+    expect(after.isolation).toBe(before.isolation);
+    expect(after.isolation).toBeGreaterThan(0);
+    expect(after.fdma).toBe(before.fdma);
+
+    // レイヤー再構築後もポップアップ対象マーカーが動作（DOM側から確認）
+    await page.evaluate(() => window.refreshAllLayers());
+    await page.waitForTimeout(1000);
+    const isoPanel = page.locator('#isoPanel .fdma-header');
+    await expect(isoPanel).toBeVisible();
+  });
+
+  test('P2-2: 道の駅91駅が表示されマーカーが動作する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1500);
+
+    // データが91件ロードされている
+    const count = await page.evaluate(() => window.MICHINOEKI_DATA.length);
+    expect(count).toBe(91);
+
+    // renderMichinoekiMarkers がレイヤーを作成している
+    const layerCount = await page.evaluate(() => {
+      const layer = window.michinoekiLayer;
+      return layer ? layer.getLayers().length : -1;
+    });
+    expect(layerCount).toBe(91);
+
+    // リロード後もレイヤー再構築が動く（P0-10 連携）
+    await page.evaluate(() => window.renderMichinoekiMarkers());
+    await page.waitForTimeout(500);
+    const after = await page.evaluate(() => window.michinoekiLayer.getLayers().length);
+    expect(after).toBe(91);
+  });
+
   test('ページタイトルが正しい', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/四国版 災害情報マップ/);

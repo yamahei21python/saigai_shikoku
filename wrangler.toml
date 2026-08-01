@@ -5,7 +5,7 @@ compatibility_date = "2024-03-01"
 # Workers Sites: 静的アセット配信
 [site]
 bucket = "./"
-include = ["*.html", "*.css", "*.js", "data/*.js", "lib/*", "src/*.js"]
+include = ["*.html", "*.css", "*.js", "data/*.js", "lib/*", "src/**"]
 exclude = ["node_modules/**", "tests/**", ".github/**"]
 
 # KV Namespace: 投稿データ保存
@@ -17,7 +17,9 @@ preview_id = "YOUR_PREVIEW_KV_ID"
 # 環境変数
 [vars]
 ENVIRONMENT = "production"
-MOD_AUTH_KEY = "shikoku-quake-secret-key-2026"
+# MOD_AUTH_KEY は平文で書かない（セキュリティ・R1）:
+#   wrangler secret put MOD_AUTH_KEY
+# api/index.js のフォールバックキーも運用前に削除すること
 
 [env.production]
 vars = { ENVIRONMENT = "production" }

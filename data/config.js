@@ -49,10 +49,5 @@ window.CONFIG = {
 
   // 自動更新間隔
   AUTO_RELOAD_INTERVAL_MS: 10 * 60 * 1000,
-
-  // 四国範囲（トリアージ用）
-  SIKOKU_BOUNDS: {
-    latMin: 32.5, latMax: 34.5,
-    lonMin: 132.0, lonMax: 135.0
-  }
+  // ※ 四国範囲は src/logic/bounds.js (SIKOKU_BOUNDS) に一元化（R6）
 };
