@@ -5,3 +5,5 @@ playwright-report/
 *.log
 dist/
 .cache/
+# 生GeoJSON（デバッグ用・数百MB）はリポジトリ外
+data/tsunami_inundation_raw.js

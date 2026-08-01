@@ -189,6 +189,13 @@
         <button onclick="changeRegion('kochi')">高知</button>
       </div>
     </div>
+    <!-- P1-1: 津波浸水想定オーバーレイ切替 -->
+    <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#B4C3D7;">
+        <input type="checkbox" id="tsunamiToggle" onchange="toggleTsunamiOverlay(this.checked)">
+        🌊 津波浸水想定（南海トラフ最大クラス）
+      </label>
+    </div>
   </header>
 
   <!-- 被害情報 種別フィルターチップ -->
@@ -328,6 +335,7 @@
 <script src="./data/ports.js"></script>
 <script src="./data/isolation.js"></script>
 <script src="./data/tsunami_towers.js"></script>
+<script src="./data/tsunami_inundation.js"></script>
 
 <!-- support.js + parser.js (TDD検証済み) -->
 <script type="module">
@@ -350,6 +358,7 @@ let quakeLayer = L.layerGroup(); // P0-2: 地震マーカー
 let portsLayer = L.layerGroup(); // P1-3: 港湾
 let isolationLayer = L.layerGroup(); // P1: 孤立リスク
 let towerLayer = L.layerGroup(); // P1-2: 避難タワー
+let inundationLayer = L.layerGroup(); // P1-1: 津波浸水想定オーバーレイ
 let isFdmaOpen = false;
 const cfg = window.CONFIG || {};
 
@@ -374,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPortsMarkers(); // P1-3
   renderIsolationMarkers(); // P1
   renderTowerMarkers(); // P1-2
+  renderTsunamiOverlay(); // P1-1（チェック状態に応じて表示）
   fetchJMAQuakeLive(); // P0-2: 気象庁地震自動取得
   setInterval(fetchJMAQuakeLive, 5 * 60 * 1000); // 5分ごと更新
 
@@ -401,6 +411,7 @@ function updateClock() {
 function initMap() {
   map = L.map('map', { zoomControl: false, attributionControl: true })
     .setView(cfg.INITIAL_CENTER || [33.6, 133.5], cfg.INITIAL_ZOOM || 8.5);
+  window.map = map; // E2Eテスト/デバッグ用に公開
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   L.tileLayer(
     (cfg.GSI_TILES && cfg.GSI_TILES.pale) ||
@@ -412,6 +423,15 @@ function initMap() {
   portsLayer.addTo(map); // P1-3
   isolationLayer.addTo(map); // P1
   towerLayer.addTo(map); // P1-2
+  inundationLayer.addTo(map); // P1-1
+  // E-1: zoom < 10 では津波浸水想定を非表示（メモリ節約）
+  map.on('zoomend', () => {
+    if (tsunamiOverlayShown && map.getZoom() < 10 && tsunamiOverlayLayer) {
+      inundationLayer.removeLayer(tsunamiOverlayLayer);
+    } else if (tsunamiOverlayShown && tsunamiOverlayLayer && !inundationLayer.hasLayer(tsunamiOverlayLayer)) {
+      tsunamiOverlayLayer.addTo(inundationLayer);
+    }
+  });
   renderIncidentMarkers();
 }
 
@@ -667,6 +687,94 @@ function renderTowerMarkers() {
     </div>`;
     L.marker([t.lat, t.lon], { icon }).bindPopup(popup).addTo(towerLayer);
   });
+}
+
+// ═══════════════════════════════════════════════
+//  P1-1: 津波浸水想定オーバーレイ
+// ═══════════════════════════════════════════════
+// 浸水深(m) → 色（気象庁ハザードマップ風）
+function tsunamiDepthColor(d) {
+  if (d >= 20) return '#7f1d1d';
+  if (d >= 10) return '#991b1b';
+  if (d >= 5)  return '#dc2626';
+  if (d >= 3)  return '#f97316';
+  if (d >= 2)  return '#f59e0b';
+  if (d >= 1)  return '#facc15';
+  if (d >= 0.3) return '#a3e635';
+  return '#d1d5db'; // 0.3m未満
+}
+
+// 表示中レイヤーのキャッシュ
+let tsunamiOverlayShown = false;
+let tsunamiOverlayLayer = null;
+
+function toggleTsunamiOverlay(checked) {
+  tsunamiOverlayShown = !!checked;
+  if (checked) {
+    if (!tsunamiOverlayLayer) renderTsunamiOverlay();
+    if (tsunamiOverlayLayer) tsunamiOverlayLayer.addTo(inundationLayer);
+    showTsunamiLegend();
+  } else {
+    if (tsunamiOverlayLayer) inundationLayer.removeLayer(tsunamiOverlayLayer);
+    hideTsunamiLegend();
+  }
+}
+
+function renderTsunamiOverlay() {
+  const data = window.TSUNAMI_INUNDATION || [];
+  if (!data.length) return;
+  const features = data.map(item => ({
+    type: 'Feature',
+    properties: { depth_m: item.d, rank: item.r, pref: item.p },
+    geometry: { type: 'MultiPolygon', coordinates: item.c },
+  }));
+  tsunamiOverlayLayer = L.geoJSON(features, {
+    style: f => ({
+      color: '#1e3a5f',
+      weight: 0.5,
+      opacity: 0.6,
+      fillColor: tsunamiDepthColor(f.properties.depth_m),
+      fillOpacity: 0.45,
+    }),
+    onEachFeature: (f, layer) => {
+      layer.bindPopup(
+        `<div style="font-size:0.85rem;line-height:1.5;max-width:260px;">
+          <strong>🌊 津波浸水想定</strong><br>
+          浸水深: <strong>${f.properties.rank}</strong><br>
+          <small style="color:#999;">出典: 国土数値情報 A40-16<br>南海トラフ最大クラス想定</small>
+        </div>`
+      );
+    },
+  });
+  if (tsunamiOverlayShown) tsunamiOverlayLayer.addTo(inundationLayer);
+}
+
+function showTsunamiLegend() {
+  if (document.getElementById('tsunamiLegend')) return;
+  const legend = document.createElement('div');
+  legend.id = 'tsunamiLegend';
+  legend.style.cssText = 'position:absolute;left:10px;bottom:60px;z-index:600;background:rgba(255,255,255,.95);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.2);padding:8px 10px;font-size:0.7rem;line-height:1.6;';
+  const rows = [
+    ['0.3m未満', tsunamiDepthColor(0)],
+    ['0.3〜1m', tsunamiDepthColor(0.5)],
+    ['1〜2m', tsunamiDepthColor(1.5)],
+    ['2〜3m', tsunamiDepthColor(2.5)],
+    ['3〜5m', tsunamiDepthColor(4)],
+    ['5〜10m', tsunamiDepthColor(7)],
+    ['10〜20m', tsunamiDepthColor(15)],
+    ['20m以上', tsunamiDepthColor(30)],
+  ].map(([label, color]) =>
+    `<div style="display:flex;align-items:center;gap:6px;">
+      <span style="display:inline-block;width:16px;height:10px;background:${color};border:1px solid #ccc;border-radius:2px;"></span>${label}
+    </div>`
+  ).join('');
+  legend.innerHTML = `<strong>🌊 想定浸水深</strong>${rows}<small style="color:#999;">出典: 国交省 津波浸水想定(2016)</small>`;
+  document.getElementById('map').appendChild(legend);
+}
+
+function hideTsunamiLegend() {
+  const el = document.getElementById('tsunamiLegend');
+  if (el) el.remove();
 }
 
 // ═══════════════════════════════════════════════
