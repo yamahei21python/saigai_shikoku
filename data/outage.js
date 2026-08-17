@@ -1,7 +1,7 @@
 // 停電情報（四国電力送配電）
 // 出典: 四国電力送配電 停電地図 topoJSON (teidenchizushikoku.com)
 // 生成: tools/fetch_teiden.py（10分間隔リロード対象）
-// 取得時刻: 2026-08-17 16:33
+// 取得時刻: 2026-08-17 17:25
 window.OUTAGE_DATA = [
   {
     "id": "out-e2ad8f77",
@@ -17,4 +17,4 @@ window.OUTAGE_DATA = [
     "note": "現在、復旧作業中です。復旧は１８時頃を見込んでいます。"
   }
 ];
-window.OUTAGE_SUMMARY = {"total": 4, "updated": "2026-08-17 16:33"};
+window.OUTAGE_SUMMARY = {"total": 4, "updated": "2026-08-17 17:25"};
