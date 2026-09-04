@@ -1,7 +1,7 @@
 // 停電情報（四国電力送配電）
 // 出典: 四国電力送配電 停電地図 topoJSON (teidenchizushikoku.com)
 // 生成: tools/fetch_teiden.py（10分間隔リロード対象）
-// 取得時刻: 2026-09-04 08:27
+// 取得時刻: 2026-09-04 10:16
 window.OUTAGE_DATA = [
   {
     "id": "out-20194c06",
@@ -23,20 +23,7 @@ window.OUTAGE_DATA = [
     "area": "山城町　仏子",
     "lat": 33.924757,
     "lon": 133.711446,
-    "households": 30,
-    "startTime": "2026/09/04 06:23:00",
-    "status": "outage",
-    "reason": "調査中",
-    "note": "現在、停電地域において故障箇所と原因を特定中です。"
-  },
-  {
-    "id": "out-65d9082a",
-    "pref": "徳島県",
-    "city": "三好市",
-    "area": "山城町　光兼",
-    "lat": 33.93129,
-    "lon": 133.71965,
-    "households": 45,
+    "households": 5,
     "startTime": "2026/09/04 06:23:00",
     "status": "outage",
     "reason": "調査中",
@@ -69,19 +56,6 @@ window.OUTAGE_DATA = [
     "note": "現在、停電地域において故障箇所と原因を特定中です。"
   },
   {
-    "id": "out-b0647346",
-    "pref": "徳島県",
-    "city": "三好市",
-    "area": "山城町　粟山",
-    "lat": 33.886201,
-    "lon": 133.683252,
-    "households": 22,
-    "startTime": "2026/09/04 06:23:00",
-    "status": "outage",
-    "reason": "調査中",
-    "note": "現在、停電地域において故障箇所と原因を特定中です。"
-  },
-  {
     "id": "out-fc037d20",
     "pref": "徳島県",
     "city": "三好市",
@@ -95,4 +69,4 @@ window.OUTAGE_DATA = [
     "note": "現在、停電地域において故障箇所と原因を特定中です。"
   }
 ];
-window.OUTAGE_SUMMARY = {"total": 122, "updated": "2026-09-04 08:27"};
+window.OUTAGE_SUMMARY = {"total": 30, "updated": "2026-09-04 10:16"};
